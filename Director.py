@@ -1,5 +1,4 @@
 import pygame
-import time
 import MainMenuScene
 import GetUsernameScene
 import NotImplementedScene as NIS
@@ -89,7 +88,7 @@ class Director: # This class is basically the class which links everything toget
 	def NotImplementedProcedure(self):
 		self.ChangeToScene(self.not_implemented_scene)		
 		self.RegularSceneEvents()
-		time.sleep(3)
+		pygame.time.wait(3000)
 		self.ChangeToScene(self.main_menu_scene)
 		
 	def CheckForExitEvents(self):

@@ -8,7 +8,7 @@ class Player:
 		
 		# list of tuples containing a tile, where a tile is the tuple, containing the letter it represents as one element, and its point worth as another element
 		# the 'dealing out' of letter tiles (i.e. population of the rack) will be done by the TileBag object in Game
-		self.rack = []
+		self.rack = [None] * 7
 	
 	def SetScore(self, newScore):
 		self.score = newScore
@@ -17,7 +17,11 @@ class Player:
 		return self.score
 	
 	def PopulateRack(self, letters):
-		self.rack = letters
+		m = 0
+		for n in range(len(self.rack)):
+			if self.rack[n] == None:
+				self.rack[n] = letters[m]
+				m += 1
 		
 	def UpdateScore(self, up_val):
 		SetScore(GetScore() + up_val)

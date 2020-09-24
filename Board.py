@@ -2,6 +2,7 @@ import pygame
 import Button as Btn	
 import LetterTileHolder
 import VisualObject as VO
+import LetterTileHolder
 		
 class Board(VO.VisualObject):
 	def __init__(self, horizontal_tile_num = 15, vertical_tile_num = 15, buffer_around_board = 4, tile_spacing = 2, width = 400, height = 400, position = (0, 0), board_colour = (0, 80, 0), tile_colour = (255, 255, 255)):
@@ -24,7 +25,7 @@ class Board(VO.VisualObject):
 		text_size = round(PIXEL_TO_POINT_FACTOR * (shorter_side_length - 12))
 		
 		first_tile_position_help = (position[0] + buffer_around_board, position[1] + buffer_around_board)
-		self.tiles = [[Btn.Button(
+		self.tiles = [[LetterTileHolder.LetterTileHolder(
 								colour = tile_colour, 
 								position = (first_tile_position_help[0] + x * (self.tile_width + tile_spacing), first_tile_position_help[1] + y * (self.tile_height + tile_spacing)),
 								width = self.tile_width,
@@ -39,7 +40,7 @@ class Board(VO.VisualObject):
 					  			for x in range(horizontal_tile_num)] for y in range(vertical_tile_num)]	
 		
 		# giving the visual representation the visual modifiers
-		# this is just one octant, wihch is then just reflected many times to get all eight octants
+		# this is just one octant, which is then just reflected many times to get all eight octants
 
 		# triple letter modifier
 		self.ChangeTiles((6, 0), "TL", (0, 235, 0))
@@ -72,7 +73,12 @@ class Board(VO.VisualObject):
 				the_tile = self.tiles[x][y]
 				the_tile.SetColour(colour)
 				the_tile.SetText(text)
-				
+			
+			
+	def GetTileAtPos(self, x, y):
+		return self.tiles[y][x]
+	
+	
 	def SetPosition(self, position):
 		super(Board, self).SetPosition(position)
 		first_tile_position_help = (position[0] + self.buffer_around_board, position[1] + self.buffer_around_board)

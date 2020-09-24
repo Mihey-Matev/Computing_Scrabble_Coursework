@@ -12,6 +12,7 @@ class Scene:
 		self.my_visual_objects = []
 		self.width = self.surface.get_size()[0]
 		self.height = self.surface.get_size()[1]
+		self.disabled_VOs = []
 		
 	# Called when a specific event is detected in the loop.
 	def ProcessInput(self, events):
@@ -36,9 +37,12 @@ class Scene:
 		self.my_visual_objects.append(TextBox.TextBox(position, text, font_size, font_family, text_colour))
 		return self.my_visual_objects[-1]	
 	
-	def AddVONonBtn(self, VO, pos):
+	def AddVONonBtn(self, VO, pos = None, disabled = False):
 		self.my_visual_objects.append(VO)
-		VO.SetPosition(pos)
+		if pos != None:
+			VO.SetPosition(pos)
+		if disabled:
+			self.disabled_VOs.append(VO)
 		return self.my_visual_objects[-1]
 		
 	
@@ -46,9 +50,17 @@ class Scene:
 	def Draw(self):		
 		self.BgColourDrawer()
 		for visual_obj in self.my_visual_objects:
-			visual_obj.Draw(self.surface)
+			if not (visual_obj in self.disabled_VOs):
+				visual_obj.Draw(self.surface)
 		pygame.display.get_surface().blit(self.surface, (0, 0))
 		
+		
+	def DisableVO(self, VO):
+		self.disabled_VOs.append(VO)
+		
+	
+	def EnableVO(self, VO):
+		self.disabled_VOs.remove(VO)
 		
 		
 	# Similar to the one in director, but local to the Scene class, in case I want to change the colour

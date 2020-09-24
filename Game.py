@@ -1,7 +1,8 @@
+import random
 import pygame
 import random
 import Player
-import LLetterTile
+#import LLetterTile
 #import TileBag
 import AI
 
@@ -39,6 +40,8 @@ class Game:
 							}
 		
 		self.current_player_num = random.randint(0, len(self.players) - 1)
+		self.current_player = self.players[self.current_player_num]
+		self.BeforeEachTurn()
 		
 		# This is the main board behin the scenes. Each third level list of two elements contains the multiplier type (as a string) and the tile which it holds (initially no tile, but as the players keep submitting words, that will change)
 		self.the_submitted_board = [
@@ -62,14 +65,60 @@ class Game:
 		# Creates an independent copy of the board; this will be what is gonig to be displayed. If it is a valid board after being submitted, self.the_submitted_board will also take on its value
 		self.display_board = [[self.the_submitted_board[y][x][:] for y in range(len(self.the_submitted_board))] for x in range(len(self.the_submitted_board[0]))]
 		
+		# gameplay variables
+		self.selected_tile = None
+		self.TilePlacementLocations = []
+
+	
+
+	def DealOutLetterTiles(self, player = None):
+		if player == None:
+			player = self.current_player
 		
+		num_of_letters_to_give = player.GetLetterTiles().count(None)
+		letters_to_give_player = []
+		
+		# Choosing a random tile by counting how many tiles are left in the bag, taking a random integer between this value and 1, and looking for which group of tiles this number represents; this is done for each tile which is None in the player's rack
+		i = 0
+		while i < num_of_letters_to_give:						
+			rand_tile_num = random.randint(1, sum(self.the_tile_bag.values()))
+			#print (sum(self.the_tile_bag.values()))
+			for tile, num in self.the_tile_bag.items():
+				if num >= rand_tile_num:
+					#print (tile)
+					self.the_tile_bag[tile] -= 1
+					letters_to_give_player.append(tile)
+					break
+				else:
+					rand_tile_num -= num
+			i += 1
+			
+		player.PopulateRack(letters_to_give_player)
+		
+	
+	def SelectTileNum(self, tile_num):
+		self.selected_tile = self.current_player.GetLetterTileAtPosition(tile_num)
+		
+		
+	def CancelTileSelection(self):
+		self.selected_tile = None
+	
+	
+	def GetCurrentPlayerLetterTiles(self):
+		return self.current_player.GetLetterTiles()
+	
+			
 	def GetCurrentPlayerName(self):
 		return self.current_player.GetName()
 	
 	
+	def GetCurrentPlayerScore(self):
+		return self.current_player.GetScore()
+		
+
 	def GetDisplayBoard(self):
 		return self.display_board
-	
+		
 	
 	def GetNextPlayerName(self):
 		return self.players[(self.current_player_num + 1) % len(self.players)].GetName()
@@ -79,16 +128,22 @@ class Game:
 		return self.players[(self.current_player_num + 1) % len(self.players)].GetScore()
 	
 	
-	def GetCurrentPlayerLetterTiles(self):
-		return self.current_player.GetLetterTiles()
-	
-	
-	def GetCurrentPlayerScore(self):
-		return self.current_player.GetScore()
-		
-	
 	def SubmitWord(self):
-		self.current_player = self.players[(self.current_player_num + 1) % len(self.players)]
+		if self.IsWordValid():
+			self.current_player_num = (self.current_player_num + 1) % len(self.players)
+			self.current_player = self.players[self.current_player_num]
+			self.BeforeEachTurn()
+			return True
+		else:
+			return False
+		
+		
+	def IsWordValid(self):
+		return True
+	
+		
+	def BeforeEachTurn(self):
+		self.DealOutLetterTiles()
 		
 		
 	# gets the remaining lettertiles which the current player is meant to be able to see
