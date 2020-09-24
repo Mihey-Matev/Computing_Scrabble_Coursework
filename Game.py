@@ -45,7 +45,6 @@ class Game:
 		
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		self.current_player = self.players[self.current_player_num]
-		self.BeforeEachTurn()
 		
 		# This is the main board behin the scenes. Each third level list of three elements contains the multiplier type (as a string), the tile which it holds (initially no tile, but as the players keep submitting words, that will change), and whether it has been locked (i.e. whether a tile has been placed there in a previous turn; this will be useful once calculating the score)
 		self.the_board = 			[
@@ -69,7 +68,8 @@ class Game:
 		# gameplay variables; work similarly to how they do in GameScene
 		self.tile_placement_locations = []		# helps out in checking if the word submitted is valid and putting all tiles back onto the player's rack if they wish
 		self.winner = None
-		self.BeforeEachTurn()
+		self.score_each_turn = []
+		self.BeforeEachTurn()		
 		
 	# Moves a tile from a given position in the player's rack to a given position on the board
 	def MoveRackTileToBoard(self, from_pos, to_pos, wild_card_letter = None):	# a wild card lettertile is one which can be any letter; this is the reason for the last parameter
@@ -218,7 +218,13 @@ class Game:
 	
 	# calculates the number of points which the submitted word should score
 	def CalculateWordScore(self):
-		return 0	
+		score = 0
+		
+		
+		
+		if len(self.tile_placement_locations) == 7:
+			score += 35		
+		return score
 	
 	# swaps the turns of players
 	def NextPlayer(self):
@@ -228,15 +234,29 @@ class Game:
 	# this is the method called once the user presses the 'submit word' button in GameScene (i.e. once they want to confirm their play)
 	def SubmitWord(self):		
 		if self.IsWordValid():
-			self.current_player.UpdateScore(self.CalculateWordScore())
+			self.score_each_turn.append(self.CalculateWordScore())
+			self.current_player.UpdateScore(self.score_each_turn[-1])
 			for location in self.tile_placement_locations:
 				self.the_board[location[1]][location[0]][2] = True
-			self.tile_placement_locations.clear()
+			self.tile_placement_locations.clear()			
 			self.NextPlayer()
 			self.BeforeEachTurn()
 			return True
 		else:
-			return False		
+			return False	
+		
+	def CheckWinner(self):
+		if len(self.current_player.GetLetterTiles()) == 0 and sum(self.the_tile_bag.values()) == 0:
+			self.current_player.UpdateScore(sum(self.current_player.GetLetterTiles().values()))
+			self.GetNextPlayer().UpdateScore(- sum(self.current_player.GetLetterTiles().values()))
+			self.winner = self.current_player.GetName()
+		elif len(self.score_each_turn) >= 3 and self.score_each_turn[-1] == 0 and self.score_each_turn[-2] == 0 and self.score_each_turn[-3] == 0:	# if three successive turns with no scoring have occurred, then this should also end the game
+			if self.current_player.GetScore() > self.GetNextPlayer().GetScore():
+				self.winner = self.current_player.GetName()
+			elif self.current_player.GetScore() < self.GetNextPlayer().GetScore():
+				self.winner = self.GetNextPlayer().GetName()
+			else:
+				self.winner = "No-one won"
 
 	# This method gives the players lettertiles
 	def DealOutLetterTiles(self, player = None):
@@ -269,6 +289,7 @@ class Game:
 	
 	def PassTurn(self):
 		self.ReturnMovedTilesToRack()
+		self.score_each_turn.append(0)
 		self.NextPlayer()
 		self.BeforeEachTurn()		
 	
@@ -304,6 +325,9 @@ class Game:
 		
 	# and intermediate method which is called before each turn
 	def BeforeEachTurn(self):
+		self.CheckWinner()
+		print (self.score_each_turn)
+		print (self.winner)
 		self.DealOutLetterTiles()	
 		
 	def GetLetterOfTileInHolderAtPos(self, pos):

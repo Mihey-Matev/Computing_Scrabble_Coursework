@@ -65,16 +65,7 @@ class GameScene(Scene.Scene):
 		self.deactivated_tile = None
 		
 		self.BeforeEachTurn()
-			
-	def PassTurn(self):
-		self.the_rack.CoverRack()
-		self.ReturnMovedTilesToRack()
-		
-		self.Draw()
-		pygame.display.update()
-		pygame.time.wait(500)
-		self.the_game.PassTurn()
-		self.BeforeEachTurn()
+
 	
 	# puts the tiles which have been moved this turn back onto the rack
 	def ReturnMovedTilesToRack(self):
@@ -114,11 +105,7 @@ class GameScene(Scene.Scene):
 		pygame.time.wait(3500)	
 	
 	# this method is where all calculations take palce
-	def ProcessInput(self, events):								
-		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
-			self.CongratulateWinner()
-			return True
-				
+	def ProcessInput(self, events):
 		self.events = events
 		
 		# dealing with buttons which are events which can happen in a scrabble game.
@@ -338,14 +325,33 @@ class GameScene(Scene.Scene):
 										)
 				
 	
-		self.winner = self.the_game.GetWinner()	# check if there is a winner
-		if self.winner == None:		# if there is a winner, they would be announced; otherwise, continue with the game.
-			self.the_rack.CoverRack()		
+		self.AfterEachTurn()
+		if self.winner == None:		# if there is a winner, they would be announced; otherwise, continue with the game.	
 			self.Draw()
 			pygame.display.update()	
 			pygame.time.wait(500)
 			self.BeforeEachTurn()
+			
+				
+	def PassTurn(self):
+		self.AfterEachTurn()
+		
+		self.ReturnMovedTilesToRack()
+		
+		self.Draw()
+		pygame.display.update()
+		pygame.time.wait(500)
+		self.the_game.PassTurn()
+		self.BeforeEachTurn()
 	
+	def AfterEachTurn(self):
+		self.winner = self.the_game.GetWinner()	# check if there is a winner
+		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
+			self.CongratulateWinner()
+			return True
+		else:
+			self.the_rack.CoverRack()
+				
 		
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
 	def BeforeEachTurn(self):		
