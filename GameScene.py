@@ -4,7 +4,7 @@ import Player
 import Button as Btn
 import TextBox
 import Rack
-#import TileBag
+import TileBag
 import OnlineGame
 import Scene
 import Board
@@ -26,7 +26,7 @@ class GameScene(Scene.Scene):
 		
 		# Rack calculations and instantiation
 		tile_size = self.the_board.GetTileSize()
-		self.the_rack = self.AddVONonBtn(Rack.Rack(tile_width = tile_size[0], tile_height = tile_size[1], lettertile_letters = [("A", 1), ("B", 4)]), (0.25 * self.width, board_position[1] + 0.5 * board_height - 5 * tile_size[1]))
+		self.the_rack = self.AddVONonBtn(Rack.Rack(tile_width = tile_size[0], tile_height = tile_size[1], lettertile_letters = ["A", "B"]), (0.25 * self.width, board_position[1] + 0.5 * board_height - 5 * tile_size[1]))
 		
 		"""
 		self.clicked_rack_tile = None

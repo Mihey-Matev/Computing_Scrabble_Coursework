@@ -6,7 +6,7 @@ import AI
 
 class Game:
 	def __init__(self, player_names, AI_names):
-		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x) for x in AI_names]
+		self.players = [Player.Player(x) for x in player_names] + [AI.AI(x) for x in AI_names]
 		self.the_tile_bag = {
 							("A", 1): 9,
 							("B", 4): 2,
@@ -40,7 +40,7 @@ class Game:
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		
 		# This is the main board behin the scenes. Each third level list of two elements contains the multiplier type (as a string) and the tile which it holds (initially no tile, but as the players keep submitting words, that will change)
-		self.the_submitted_board = [
+		self.the_submitted_l_board = [
 									[["", None], ["", None], ["", None], ["TW", None], ["", None], ["", None], ["TL", None], ["", None], ["TL", None], ["", None], ["", None], ["TW", None], ["", None], ["", None], ["", None]],
 									[["", None], ["", None], ["DL", None], ["", None], ["", None], ["DW", None], ["", None], ["", None], ["", None], ["", None], ["", None], ["DL", None], ["", None], ["", None], ["", None]],
 									[["", None], ["DL", None], ["", None], ["", None], ["DL", None], ["", None], ["", None], ["", None], ["", None], ["", None], ["DL", None], ["", None], ["", None], ["DL", None], ["", None]],
@@ -58,8 +58,8 @@ class Game:
 									[["", None], ["", None], ["", None], ["TW", None], ["", None], ["", None], ["TL", None], ["", None], ["TL", None], ["", None], ["", None], ["TW", None], ["", None], ["", None], ["", None]]
 									]
 		
-		# Creates an independent copy of the board; this will be what is gonig to be displayed. If it is a valid board after being submitted, self.the_submitted_board will also take on its value
-		self.display_board = [[self.the_submitted_board[y][x][:] for y in range(len(self.the_submitted_board))] for x in range(len(self.the_submitted_board[0]))]
+		# Creates an independent copy of the board; this will be what is gonig to be displayed. If it is a valid board after being submitted, self.the_submitted_l_board will also take on its value
+		self.display_board = [[self.the_submitted_l_board[y][x][:] for y in range(len(self.the_submitted_l_board))] for x in range(len(self.the_submitted_l_board[0]))]
 		
 		
 	def GetCurrentPlayerName(self):
@@ -95,11 +95,6 @@ class Game:
 		return [kept_tile for kept_tile in [y for x in [self.the_tile_bag[tile] * tile for tile in self.the_tile_bag] for y in x] if kept_tile not in self.GetCurrentPlayerLetterTiles()]
 	
 	
-	# returns true if the placing was successful
-	def PlaceLetterTile(lettertile, pos):
-		if self.display_board[pos[1]][pos[0]][1] == None:
-			self.display_board[pos[1]][pos[0]][1] = lettertile
-			return True
 	
 	
 	

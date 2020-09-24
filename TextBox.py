@@ -20,7 +20,5 @@ class TextBox(VO.VisualObject):
 	def SetText(self, text):
 		self.the_text = self.font.render(text, 1, self.text_colour)
 	
-	def GetText(self):
-		return self.the_text
 
 		
