@@ -3,6 +3,7 @@ import pygame
 		
 class Player:
 	def __init__(self, nickname, game):
+		
 		self.nickname = nickname
 		self.SetScore(0)
 		self.in_game = game
@@ -23,6 +24,7 @@ class Player:
 			if self.rack[n] == None:
 				self.rack[n] = letters[m]
 				m += 1	
+		#self.rack[0] = ("*", 0)
 	
 	# shuffles the elements in the player's rack; this can then be displayed by GameScene (through Game)
 	def ShuffleRack(self):

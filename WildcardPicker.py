@@ -49,7 +49,7 @@ class WildcardPicker(VO.VisualObject):
 		self.events = events
 		the_letter = self.FindClickedLetter()
 		if the_letter != None:
-			return the_letter	
+			return str(the_letter)
 	
 	def SetPosition(self, position):
 		for tile in self.tiles:

@@ -1,8 +1,10 @@
 import random
 import pygame
+import sys
 import random
 import Player
 import AI
+import final_gaddag_v6
 
 class Game:
 	def __init__(self, player_names, AI_names):
@@ -36,7 +38,10 @@ class Game:
 							("Z", 10): 1,
 							("*", 0): 2
 							}
-		self.total_tile_num = sum(self.the_tile_bag.values())
+		dict_file = open(str(sys.path[0]) + "/dictionary", "r")
+		self.my_dict = dict_file.read().strip().upper().split("\n")
+		dict_file.close()
+		#print(self.my_dict[:20])
 		
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		self.current_player = self.players[self.current_player_num]
@@ -101,7 +106,115 @@ class Game:
 		
 	# checks if the word which has just been submitted on the board is valid
 	def IsWordValid(self):
-		return True	
+		# Firstly we check if the locations of the tiles which the player palces down are all in the same row or same column; if they aren't, then the word submitted is invalid
+		valid = False
+		if len(self.tile_placement_locations) >= 2:			
+			columnar_word = False
+			# check if the rows are the same by comparing each x coordinate of the tiles to each other
+			n = 0
+			while n < len(self.tile_placement_locations) - 1 and not columnar_word:
+				pos1 = self.tile_placement_locations[n]
+				for pos2 in self.tile_placement_locations[n+1:]:
+					if pos1[0] != pos2[0]:
+						columnar_word = True
+						break
+				n += 1
+			if not columnar_word:
+				valid = True
+			
+			# check if the columns are the same by comparing each y coordinate of the tiles to each other
+			n = 0
+			while n < len(self.tile_placement_locations) - 1 and columnar_word:
+				pos1 = self.tile_placement_locations[n]
+				for pos2 in self.tile_placement_locations[n+1:]:
+					if pos1[1] != pos2[1]:
+						columnar_word = False
+						break
+				n += 1
+			if columnar_word:
+				valid = True
+		elif len(self.tile_placement_locations) == 1:
+			valid = True
+		else:
+			valid = False			
+		# then we can check if the word is connected to a branch of the already existing words
+		if valid:
+			for pos in self.tile_placement_locations:	# check each tile which has been placed down for whether its position is valid; if one is invalid, then the word cannot be submitted.
+				if not self.IsTileConnectedToSubmittedTiles(pos):
+					valid = False
+					break							
+		if valid:
+			valid = self.IsWordAWord()			
+		return valid		
+	
+	def IsWordAWord(self):
+		row_strings = []
+		column_strings = [""] * len(self.the_board[0])
+		row_num = 0
+		column_string = ""
+		while row_num < len(self.the_board):
+			column_num = 0
+			row_string = ""
+			while column_num < len(self.the_board[row_num]):
+				char = self.GetLetterOfTileInHolderAtPos((column_num, row_num))
+				if char != None:
+					row_string += self.GetLetterOfTileInHolderAtPos((column_num, row_num))
+					if char == None:
+						char = " "
+					column_strings[column_num] += char
+				elif row_string != "":
+					row_strings.append(row_string)
+					row_string = ""
+				column_num += 1		
+			if row_string != "":
+				row_strings.append(row_string)
+			row_num += 1
+			
+		i = 0
+		while i < len(column_strings):
+			if column_strings[i] == "":
+				column_strings.pop(i)
+			elif " " in column_strings[i]:
+				column_strings += column_strings.pop(i).split(" ")
+			else:
+				i += 1
+		"""
+		print ("-------------------------------")
+		print (row_strings)
+		print (column_strings)
+		print ("-------------------------------")
+		"""
+		valid = True
+		for string in row_strings:
+			if not string in self.my_dict:
+				valid = False
+				break
+		#print (valid)
+		if valid:
+			for string in column_strings:
+				if not string in self.my_dict:
+					valid = False
+					break
+		#print (valid)
+		
+		if len(row_strings) == 1 and len(column_strings) == 1 and row_strings[0] in self.my_dict:
+			valid = True
+					
+		return valid
+		
+		
+	# this function returns true if the tile being tested is in some way connected to previously submitted tiles; otherwise, it returns false. If the tile is not in the self.tile_placement_locations list, then it is assumed that the tile being tested is a submitted tile, which is the base case.
+	def IsTileConnectedToSubmittedTiles(self, tile_relative_pos, previous_pos = None):	# the last parameter is to make sure that two tiles don't infinetly check if each other are in a valid position
+		valid = False
+		if tile_relative_pos == (7, 7) and tile_relative_pos in self.tile_placement_locations:	# if this is the first word being put down, then allow user to place it down on the centre piece without any problems
+			valid = True
+		elif tile_relative_pos in self.tile_placement_locations:	# if the tile placed down 
+			for pos in [(tile_relative_pos[0] + 1, tile_relative_pos[1]), (tile_relative_pos[0] - 1, tile_relative_pos[1]), (tile_relative_pos[0], tile_relative_pos[1] + 1), (tile_relative_pos[0], tile_relative_pos[1] - 1)]:
+				if pos != previous_pos and (self.IsTileConnectedToSubmittedTiles(pos, tile_relative_pos)):
+					valid = True
+		elif tile_relative_pos[1] >= 0 and tile_relative_pos[1] <= 14 and tile_relative_pos[0] >= 0 and tile_relative_pos[0] <= 14 and self.the_board[tile_relative_pos[1]][tile_relative_pos[0]][2] == True:
+			valid = True
+		return valid
 	
 	# calculates the number of points which the submitted word should score
 	def CalculateWordScore(self):
@@ -191,7 +304,17 @@ class Game:
 		
 	# and intermediate method which is called before each turn
 	def BeforeEachTurn(self):
-		self.DealOutLetterTiles()		
+		self.DealOutLetterTiles()	
+		
+	def GetLetterOfTileInHolderAtPos(self, pos):
+		if self.the_board[pos[1]][pos[0]][0] != None:
+			return self.GetTileAtPos(pos[0], pos[1])[0]
+			#return self.the_board[pos[1]][pos[0]][0][0]
+	
+	def GetScoreOfTileInHolderAtPos(self, pos):
+		if self.the_board[pos[1]][pos[0]][0] != None:
+			return self.GetTileAtPos(pos[0], pos[1])[1]
+			#return self.the_board[pos[1]][pos[0]][0][1]
 		
 	# gets the remaining lettertiles which the current player is meant to be able to see; this is used when the player wants to see the tiles left in the tilebag (i.e. when they press the 'Tile Bag' button)
 	def GetRemainingTilesForCurrentPlayer(self):

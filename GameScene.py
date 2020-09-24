@@ -62,6 +62,7 @@ class GameScene(Scene.Scene):
 		# the following two variables are intermediate variables for when I want to mvoe a tile from one place to another
 		self.rack_selection = None		
 		self.board_selection = None		
+		self.deactivated_tile = None
 		
 		self.BeforeEachTurn()
 			
@@ -71,7 +72,7 @@ class GameScene(Scene.Scene):
 		
 		self.Draw()
 		pygame.display.update()
-		pygame.time.wait(5000)
+		pygame.time.wait(500)
 		self.the_game.PassTurn()
 		self.BeforeEachTurn()
 	
@@ -87,6 +88,7 @@ class GameScene(Scene.Scene):
 	def ShuffleTiles(self):
 		self.ReturnMovedTilesToRack()
 		self.the_game.ShuffleTiles()
+		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 	
 	# the player which resigns loses, so the winning player wins, and this is reflected by changing the variable self.winner (which is checked for in ProcessInput())
 	def Resign(self):
@@ -147,6 +149,10 @@ class GameScene(Scene.Scene):
 			if rack_selection_check != None and (rack_selection_check[0].HasTile() or self.board_selection != None or self.rack_selection != None):	# this means the tile was clicked on this frame
 				if self.rack_selection == None:
 					self.rack_selection = rack_selection_check
+					if self.deactivated_tile == None:
+						self.deactivated_tile = self.rack_selection[0].GetTile()
+						if self.deactivated_tile != None:
+							self.deactivated_tile.Deactivate()
 					self.rack_tileholder_clicked_last = True
 				elif self.rack_selection[0].MoveTileTo(rack_selection_check[0]):	# moving a lettertile around the rack (graphically)
 					self.the_game.MoveRackTileToRackPos(self.rack_selection[1], rack_selection_check[1])	# the logical movement
@@ -160,6 +166,10 @@ class GameScene(Scene.Scene):
 			if board_selection_check != None and (board_selection_check[0].HasTile() or self.board_selection != None or self.rack_selection != None):
 				if self.board_selection == None:
 					self.board_selection = board_selection_check
+					if self.deactivated_tile == None:
+						self.deactivated_tile = self.board_selection[0].GetTile()
+						if self.deactivated_tile != None:
+							self.deactivated_tile.Deactivate()
 					self.rack_tileholder_clicked_last = False
 				elif self.board_selection[0].MoveTileTo(board_selection_check[0]):	# moving a lettertile around the board (graphically)
 					wild_card_choice = None
@@ -248,12 +258,18 @@ class GameScene(Scene.Scene):
 	
 	# can be called to make it so that no tiles are going to be moved
 	def CancelMoves(self):
-		self.board_selection = None
-		self.rack_selection = None
+		if self.deactivated_tile != None:
+			self.deactivated_tile.Activate()
+			self.deactivated_tile = None
+		if self.board_selection != None:			
+			self.board_selection = None
+		if self.rack_selection != None:
+			self.rack_selection = None
 		
 	
 	def SwapTiles(self):
 		self.ReturnMovedTilesToRack()
+		self.CancelMoves()
 		list_of_tiles_to_swap = []		# holds the numbers of the position of tiles in the rack which need to be swapped
 		list_of_crosses_for_tiles = []	# a list containing the visual crosses which show the user which tiles they want to swap
 		
@@ -270,7 +286,7 @@ class GameScene(Scene.Scene):
 		
 		while not exit_loop:
 			events = pygame.event.get()
-			rack_selection_check = self.the_rack.ProcessInput(events)
+			rack_selection_check = self.the_rack.ProcessInput(events)			
 			exit_event = self.swap_tiles.ProcessInput(events)
 			if exit_event != None:
 				exit_loop = True
@@ -313,9 +329,9 @@ class GameScene(Scene.Scene):
 										height = self.tile_size[1], 
 										outline_colour = (100, 100, 0), 
 										text = self.the_game.GetTileAtPos(x, y)[0],
-										text_size = round(0.75 * (self.tile_size[0] - 12)), 
+										text_size = round(0.49 * self.tile_size[0]), 
 										text_colour = (0, 0, 0), 
-										fade_value = 20,
+										fade_value = 30,
 										is_active = False,
 										outline_size = 4,
 										point_worth = self.the_game.GetTileAtPos(x, y)[1])
@@ -327,7 +343,7 @@ class GameScene(Scene.Scene):
 			self.the_rack.CoverRack()		
 			self.Draw()
 			pygame.display.update()	
-			pygame.time.wait(5000)
+			pygame.time.wait(500)
 			self.BeforeEachTurn()
 	
 		
