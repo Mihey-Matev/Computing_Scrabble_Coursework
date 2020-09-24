@@ -9,7 +9,8 @@ class Director: # This class is basically the class which links everything toget
 	def __init__(self, theme_colour = (237, 180, 127)):
 		pygame.init()
 		self.theme_colour = theme_colour
-		self.screen = pygame.display.set_mode((int(1920*0.8), int(1080*0.8)))
+		res = 1920/24
+		self.screen = pygame.display.set_mode((int(res*16), int(res*9)))
 		pygame.display.set_caption("Scrabble-like Game")
 		
 		self.background = pygame.Surface(self.screen.get_size())
@@ -42,14 +43,10 @@ class Director: # This class is basically the class which links everything toget
 				number_of_AIs = 0
 				# each number plays a different game: 1 - VS AI, 2 - Vs Plater, 3 - Online, and 4 is exit game.
 				if game_option == 1:
-					#self.NotImplementedProcedure()
-					#break
 					raise NotImplementedError("Section of game not implemented yet")
 				elif game_option == 2:
 					number_of_players = 2
 				elif game_option == 3:
-					#self.NotImplementedProcedure()
-					#break
 					raise NotImplementedError("Section of game not implemented yet") 
 				else:
 					self.Quit()

@@ -5,7 +5,7 @@ import GLetterTile
 import TextBox
 
 class TileBagPopUp(VO.VisualObject):
-	def __init__(self, width, height, position = (0, 0), tile_width = 50, tile_height = 50, picker_colour = (217, 160, 107)):
+	def __init__(self, width, height, position, tile_width = 50, tile_height = 50, picker_colour = (217, 160, 107)):
 		super(TileBagPopUp, self).__init__(position)
 		self.tile_height = tile_height
 		self.tile_width = tile_width
@@ -57,8 +57,7 @@ class TileBagPopUp(VO.VisualObject):
 									text_colour = (237, 180, 127), 
 									fade_value = 20,
 									is_active = True,
-									outline_size = 4)
-		
+									outline_size = 4)		
 	
 	def Draw(self, surface):		
 		pygame.draw.rect(surface, self.picker_colour, (self.position, (self.width, self.height)), 0)
@@ -68,22 +67,19 @@ class TileBagPopUp(VO.VisualObject):
 			tile.Draw(surface)
 		for num in self.numbers_of_tiles:
 			num.Draw(surface)
-		pygame.display.update()
-	
 	
 	# returns the letter which was clicked
 	def ProcessInput(self, events, tiles_amounts):
 		self.events = events
 		for n, tile in enumerate(self.tiles):
 			self.numbers_of_tiles[n].SetText(tiles_amounts[str(tile)])
-			#num_text.SetText(tiles_amounts[num_text.GetText()])
 		
+		# If the player presses on the 'x' button, then the object returns true, which can be handled appropriately (to end the event)
 		self.exit_btn.IsOver(pygame.mouse.get_pos())
 		for event in events:
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				if self.exit_btn.IsOver(pygame.mouse.get_pos()):
-					return True
-	
+					return True	
 	
 	def SetPosition(self, position):
 		for tile in self.tiles:
@@ -92,6 +88,6 @@ class TileBagPopUp(VO.VisualObject):
 			num.SetPosition((num.GetPosition()[0] + position[0] - self.position[0], num.GetPosition()[1] + position[1] - self.position[1]))
 		self.instruction_text.SetPosition((self.instruction_text.GetPosition()[0] + position[0] - self.position[0], self.instruction_text.GetPosition()[1] + position[1] - self.position[1]))
 		self.exit_btn.SetPosition((self.exit_btn.GetPosition()[0] + position[0] - self.position[0], self.exit_btn.GetPosition()[1] + position[1] - self.position[1]))
-		self.position = position
+		super(TileBagPopUp, self).SetPosition(position)
 		
 		
