@@ -38,8 +38,9 @@ class LetterTileHolder(Btn.Button):
 
 
 	def PlaceTile(self, tile):
-		old_tile = self.RemoveTile
+		old_tile = self.RemoveTile()
 		self.my_tile = tile
+		self.my_tile.SetPosition(self.position)
 		return old_tile
 	
 	
@@ -88,3 +89,4 @@ class LetterTileHolder(Btn.Button):
 
 	def GetTile(self):
 		return self.my_tile
+	

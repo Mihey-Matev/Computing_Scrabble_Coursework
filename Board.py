@@ -75,7 +75,7 @@ class Board(VO.VisualObject):
 				the_tile.SetText(text)
 			
 			
-	def GetTileAtPos(self, x, y):
+	def GetHolderAtPos(self, x, y):
 		return self.tiles[y][x]
 	
 	

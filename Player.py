@@ -1,3 +1,4 @@
+import random
 import pygame
 		
 class Player:
@@ -22,12 +23,23 @@ class Player:
 			if self.rack[n] == None:
 				self.rack[n] = letters[m]
 				m += 1
+	
+	
+	def ShuffleRack(self):
+		random.shuffle(self.rack)
+		
 		
 	def UpdateScore(self, up_val):
-		SetScore(GetScore() + up_val)
+		self.SetScore(self.GetScore() + up_val)
+		
 		
 	def GetLetterTiles(self):
 		return self.rack
+	
+	
+	def SetRackLetterTile(self, pos, tile):
+		self.rack[pos] = tile
+	
 	
 	def GetName(self):
 		return self.nickname

@@ -46,6 +46,10 @@ class GLetterTile(Btn.Button):
 		
 	def __str__(self):
 		return self.GetText()
+	
+	
+	def __int__(self):
+		return int(self.point_text.GetText())
 		
 	
 	def ChangeLooks(self, letter = None, point_worth = None, colour = None, outline_colour = None):

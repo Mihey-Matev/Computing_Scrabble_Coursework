@@ -8,12 +8,18 @@ class TextBox(VO.VisualObject):
 		self.the_text = self.font.render(str(text), 1, self.text_colour)
 		self.SetPosition(position)
 		self.text = text
+		self.position = position
 		
-	def Draw(self, surface, position = None):
+	def Draw(self, surface):
 		# this allows me to draw the button on a different surface with different coordinates, but it will still be interacted with with the main surface's coordinates
-		if position is None:
-			position = self.position
-		surface.blit(self.the_text, position)
+		#if position is None:
+		#	position = self.position
+		surface.blit(self.the_text, self.position)
+		
+	
+	def SetPosition(self, position):
+		self.position = position
+	
 		
 	def GetSize(self):
 		return (self.the_text.get_width(), self.the_text.get_height())

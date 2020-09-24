@@ -29,7 +29,7 @@ class Rack(VO.VisualObject):
 		self.covered = False
 		
 	def Draw(self, surface):
-		pygame.draw.rect(surface, self.rack_colour, (self.position, (self.width, self.height)),0)
+		pygame.draw.rect(surface, self.rack_colour, (self.position, (self.width, self.height)), 0)
 		#print (self.covered)
 		if not self.covered:
 			for holder in self.holders:
@@ -94,16 +94,15 @@ class Rack(VO.VisualObject):
 	
 	def PopulateRack(self, lettertiles):
 		shorter_side_length = min(self.tile_height, self.tile_width)
-		PIXEL_TO_POINT_FACTOR = 0.75
-		text_size = round(PIXEL_TO_POINT_FACTOR * (shorter_side_length - 12))
+		text_size = round(0.75 * (shorter_side_length - 12))
 		
 		for n, tile in enumerate(lettertiles):			
 			if tile == None:
 				self.holders[n].RemoveTile()
 			elif tile[0] != str(self.holders[n].GetTile()) and self.holders[n].GetTile() == None:
 				#print (str(self.holders[n].GetTile()))
-				self.holders[n].PlaceTile(
-										GLetterTile.GLetterTile(
+				#print (tile[0])
+				self.holders[n].PlaceTile(GLetterTile.GLetterTile(
 										colour = (215, 215, 0),
 										position = self.holders[n].GetPosition(),
 										width = self.holders[n].GetSize()[0], 

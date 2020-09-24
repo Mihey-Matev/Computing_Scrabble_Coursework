@@ -44,7 +44,10 @@ class Button(VO.VisualObject):
 									text_colour
 									)
 			
-		self.is_active = is_active
+		if not is_active:
+			self.Deactivate()
+		else:
+			self.is_active = is_active
 
 	def GetSize(self):
 		return (self.width, self.height)
@@ -110,7 +113,7 @@ class Button(VO.VisualObject):
 	def Draw(self, surface):
 		#pygame.draw.rect(surface, self.outline_colour, (self.position[0] - 0.5 * self.outline_size, self.position[1] - 0.5 * self.outline_size,self.width + self.outline_size,self.height + self.outline_size), 0)            
 		#pygame.draw.rect(surface, self.colour, (self.position[0], self.position[1],self.width,self.height),0)
-		pygame.draw.rect(surface, self.outline_colour, (self.position[0], self.position[1], self.width, self.height), 0)   
+		pygame.draw.rect(surface, self.outline_colour, (self.position[0], self.position[1], self.width, self.height), 0)
 		pygame.draw.rect(surface, self.colour, (self.position[0] + 0.5 * self.outline_size, self.position[1] + 0.5 * self.outline_size, self.width - self.outline_size, self.height - self.outline_size), 0)
         
 		self.btn_text.Draw(surface)
