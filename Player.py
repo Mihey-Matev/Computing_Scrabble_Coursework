@@ -1,6 +1,4 @@
-class Rack:
-	def __init__(self):		
-		print ("Not finished!")
+import pygame
 		
 class Player:
 	def __init__(self):
@@ -15,9 +13,3 @@ class Player:
 		
 	def UpdateScore(self, upVal):
 		SetScore(GetScore() + upVal)
-		
-
-class AI(Player):
-	def __init__(self):
-		super().__init__()
-	
