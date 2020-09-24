@@ -127,6 +127,9 @@ class Button(VO.VisualObject):
 		
 	def SetText(self, text):
 		self.btn_text.SetText(text)
+		
+	def GetText(self):
+		return self.btn_text.GetText()
 			
 			
 	# The method which checks if the mouse is hovering over the button

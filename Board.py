@@ -1,5 +1,6 @@
 import pygame
 import Button as Btn	
+import LetterTileHolder
 import VisualObject as VO
 		
 class Board(VO.VisualObject):
