@@ -2,9 +2,6 @@ import pygame
 import Scene
 import Button as Btn
 import GetUsernameScene
-#import VSPlayerTransitionScene as VSPT
-#import VSAITransitionScene as VSAIT
-#import OnlineTransitionScene as OT
 import TextBox
 
 # a subclass of scene which is just the main menu as described previously in my document. It contains the buttons to change scenes or exit game along with the game's name.
@@ -17,7 +14,7 @@ class MainMenuScene(Scene.Scene):
 		width = pygame.display.get_surface().get_size()[0] * 0.23
 		height = pygame.display.get_surface().get_size()[1] * (1.0/7.7)
 		spacing = height * (1.0/6.0)		
-		text_size = int(pygame.display.get_surface().get_size()[0] * (7.0/160.0))
+		text_size = int(self.width * (7.0/160.0))
 		text_colour = (0, 0, 0)		
 		colour = (161,111,80)
 		outline_colour = (109, 67, 19)
@@ -48,38 +45,6 @@ class MainMenuScene(Scene.Scene):
 			return 3
 		elif btn_clicked == self.exit_game_btn:
 			return 4
-		"""
-		for button in self.my_buttons:
-			button.IsOver(pygame.mouse.get_pos())
-			
-		for event in self.events:
-			if event.type == pygame.MOUSEBUTTONDOWN:
-				#print ("hi")
-				if self.VS_AI_btn.IsOver(pygame.mouse.get_pos()):
-					# change to vs ai next scene
-					#self.director.ChangeToScene(GetUsernameScene.GetUsernameScene(self.director, self.surface.get_size()[0], self.surface.get_size()[1]))
-					return 1
-					#return VSAIT.VSAITransitionScene(self.surface.get_size()[0], self.surface.get_size()[1])
-					
-				elif self.VS_Player_btn.IsOver(pygame.mouse.get_pos()):
-					# change to vs player next scene					
-					#self.director.ChangeToScene(GetUsernameScene.GetUsernameScene(self.director, self.surface.get_size()[0], self.surface.get_size()[1]))
-					return 2
-					#return VSPT.VSPlayerTransitionScene(self.surface.get_size()[0], self.surface.get_size()[1])
-				
-				elif self.online_btn.IsOver(pygame.mouse.get_pos()):
-					# change to vs online next scene
-					#self.director.ChangeToScene(GetUsernameScene.GetUsernameScene(self.director, self.surface.get_size()[0], self.surface.get_size()[1]))
-					return 3
-					#return OT.OnlineTransitionScene(self.surface.get_size()[0], self.surface.get_size()[1])
-				
-				elif self.exit_game_btn.IsOver(pygame.mouse.get_pos()):
-					# exit game
-					return 4
-					#pygame.display.quit()
-					#pygame.quit()
-					#raise SystemExit	
-		"""
 		
 	def Update(self):
 		pass

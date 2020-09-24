@@ -10,6 +10,8 @@ class Scene:
 		self.surface = pygame.Surface((width, height))
 		self.my_buttons = []
 		self.my_visual_objects = []
+		self.width = self.surface.get_size()[0]
+		self.height = self.surface.get_size()[1]
 		
 	# Called when a specific event is detected in the loop.
 	def ProcessInput(self, events):
@@ -20,8 +22,13 @@ class Scene:
 		# Game logic would go here
 		raise NotImplementedError("Update abstract method must be defined in subclass.")
 	
-	def AddButton(self, colour = (255, 255, 255), position = (0, 0), width = 50, height = 50, outline_colour = (0, 0, 0), text = "", text_size = 20, text_colour = (0, 0, 0), fade_value = 20):
-		self.my_buttons.append(Btn.Button(colour, position, width, height, outline_colour, text, text_size, text_colour))
+	def AddButton(self, colour = (255, 255, 255), position = (0, 0), width = 50, height = 50, outline_colour = (0, 0, 0), text = "Btn", text_size = 20, text_colour = (0, 0, 0), fade_value = 20, button = None):
+		if button == None:
+			self.my_buttons.append(Btn.Button(colour, position, width, height, outline_colour, text, text_size, text_colour))
+		else:
+			self.my_buttons.append(button)
+			if not (position is None):
+				button.SetPosition(position)
 		self.my_visual_objects.append(self.my_buttons[-1])
 		return self.my_buttons[-1]		
 	
@@ -43,6 +50,7 @@ class Scene:
 		pygame.display.get_surface().blit(self.surface, (0, 0))
 		
 		
+		
 	# Similar to the one in director, but local to the Scene class, in case I want to change the colour
 	def BgColourDrawer(self):
 		self.surface.fill(self.theme_colour)
@@ -50,11 +58,11 @@ class Scene:
 	
 	# get the button which was clicked in the current frame; if no button was clicked, returns None
 	def ButtonClicked(self):
-		for button in self.my_buttons:
-			button.IsOver(pygame.mouse.get_pos())	
+		for btn in self.my_buttons:
+			btn.IsOver(pygame.mouse.get_pos())	
 
 		for event in self.events:
-			if event.type == pygame.MOUSEBUTTONDOWN:
+			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				for btn in self.my_buttons:
 					if btn.IsOver(pygame.mouse.get_pos()):
 						return btn
@@ -65,7 +73,6 @@ class Scene:
 	def CentreVOOnPos(self, VO, position = None):
 		if position is None:
 			position = self.GetCentreCoordinates()
-		#VO.SetPosition(((self.surface.get_width() - VO.GetSize()[0]) / 2, (self.surface.get_height() - VO.GetSize()[1]) / 2))
 		VO.SetPosition((position[0] - 0.5 * VO.GetSize()[0], position[1] - 0.5 * VO.GetSize()[1]))
 			
 			
