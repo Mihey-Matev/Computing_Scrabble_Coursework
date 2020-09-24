@@ -22,33 +22,32 @@ class Player:
 		for n in range(len(self.rack)):
 			if self.rack[n] == None:
 				self.rack[n] = letters[m]
-				m += 1
+				m += 1	
 	
-	
+	# shuffles the elements in the player's rack; this can then be displayed by GameScene (through Game)
 	def ShuffleRack(self):
-		random.shuffle(self.rack)
-		
+		random.shuffle(self.rack)		
 		
 	def UpdateScore(self, up_val):
-		self.SetScore(self.GetScore() + up_val)
+		self.SetScore(self.GetScore() + up_val)		
 		
-		
+	# gets the elements that the player's rack contains
 	def GetLetterTiles(self):
-		return self.rack
+		return self.rack	
 	
-	
+	# changes one of the player's tiles in their rack to something new
 	def SetRackLetterTile(self, pos, tile):
-		self.rack[pos] = tile
-	
+		self.rack[pos] = tile	
 	
 	def GetName(self):
 		return self.nickname
-
 	
+	# Gets the tile which is at that position in their rack
 	def GetLetterTileAtPosition(self, position):
-		return self.rack[position]
+		return self.rack[position]	
 	
 	
+	"""Should probably move the tile movement methods from game to player"""
 	# returns true if the placing was successful
-	def PlacePiece(lettertile_rack_pos, board_pos):
-		return self.in_game.PlaceLetterTile(self.the_rack[lettertile_rack_pos], board_pos)
+	#def PlacePiece(lettertile_rack_pos, board_pos):
+	#	return self.in_game.PlaceLetterTile(self.the_rack[lettertile_rack_pos], board_pos)

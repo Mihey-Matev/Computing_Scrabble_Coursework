@@ -31,20 +31,17 @@ class SwapTilesPopUp(VO.VisualObject):
 				text_colour = (0, 0, 0), 
 				fade_value = 20,
 				is_active = True,
-				outline_size = 4)
-		
+				outline_size = 4)		
 		
 	def Draw(self, surface):
 		pygame.draw.rect(surface, self.colour, (self.position, (self.width, self.height)), 0)
 		self.cancel_btn.Draw(surface)
-		self.submit_btn.Draw(surface)
-		
+		self.submit_btn.Draw(surface)		
 	
 	def SetPosition(self, position):
 		super(SwapTilesPopUp, self).SetPosition(position)
 		self.cancel_btn.SetPosition((self.cancel_btn.GetPosition()[0] + position[0] - self.position[0], self.cancel_btn.GetPosition()[1] + position[1] - self.position[1]))
-		self.submit_btn.SetPosition((self.submit_btn.GetPosition()[0] + position[0] - self.position[0], self.submit_btn.GetPosition()[1] + position[1] - self.position[1]))
-		
+		self.submit_btn.SetPosition((self.submit_btn.GetPosition()[0] + position[0] - self.position[0], self.submit_btn.GetPosition()[1] + position[1] - self.position[1]))		
 		
 	def ProcessInput(self, events):
 		self.events = events
