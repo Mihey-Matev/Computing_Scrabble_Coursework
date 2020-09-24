@@ -43,6 +43,7 @@ class Button:
 		#if outline_colour:
 		pygame.draw.rect(pygame.display.get_surface(), self.outline_colour, (self.x - 0.5 * self.outline_size,self.y - 0.5 * self.outline_size,self.width + self.outline_size,self.height + self.outline_size),0)
             
+        print (self.colour)
 		pygame.draw.rect(pygame.display.get_surface(), self.colour, (self.x,self.y,self.width,self.height),0)
         
 		if self.text != '':

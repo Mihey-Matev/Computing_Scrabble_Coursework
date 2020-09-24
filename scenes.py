@@ -56,6 +56,8 @@ class MainMenuScene(Scene):
 		self.my_buttons = [self.VS_AI_btn, self.VS_Player_btn, self.online_btn, self.exit_game_btn]
 	
 	def ProcessInput(self, events):
+        for button in self.my_buttons:
+            button.IsOver(pygame.mouse.get_pos())
 		for event in events:
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if self.VS_AI_btn.IsOver(pygame.mouse.get_pos()):
