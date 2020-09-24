@@ -24,7 +24,6 @@ class Player:
 			if self.rack[n] == None and m < len(letters):
 				self.rack[n] = letters[m]
 				m += 1	
-		#self.rack[0] = ("*", 0)
 	
 	# shuffles the elements in the player's rack; this can then be displayed by GameScene (through Game)
 	def ShuffleRack(self):

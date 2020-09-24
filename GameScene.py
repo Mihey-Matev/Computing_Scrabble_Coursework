@@ -64,7 +64,6 @@ class GameScene(Scene.Scene):
 		self.board_selection = None		
 		self.deactivated_tile = None
 		
-		#self.BeforeEachTurn()
 		self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
 		self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
 		self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
@@ -145,7 +144,7 @@ class GameScene(Scene.Scene):
 			if rack_selection_check != None and (rack_selection_check[0].HasTile() or self.board_selection != None or self.rack_selection != None):	# this means the tile was clicked on this frame
 				if self.rack_selection == None:
 					self.rack_selection = rack_selection_check
-					if self.deactivated_tile == None:
+					if self.deactivated_tile == None:	# if the player clicks on a tile, then deactivate it to mark it as selected
 						self.deactivated_tile = self.rack_selection[0].GetTile()
 						if self.deactivated_tile != None:
 							self.deactivated_tile.Deactivate()
@@ -333,15 +332,13 @@ class GameScene(Scene.Scene):
 										outline_size = 4,
 										point_worth = self.the_game.GetTileAtPos(x, y)[1])
 										)	
-		self.AfterEachTurn()		
-		#self.BeforeEachTurn()
+		self.AfterEachTurn()
 			
 				
 	def PassTurn(self):			
 		self.ReturnMovedTilesToRack()	
 		self.the_game.PassTurn()
-		self.AfterEachTurn()		
-		#self.BeforeEachTurn()
+		self.AfterEachTurn()
 	
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
 	def AfterEachTurn(self):
@@ -354,40 +351,13 @@ class GameScene(Scene.Scene):
 			self.Draw()			
 			pygame.display.update()	
 			self.tile_placement_locations.clear()		
-			self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
+			self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())		# swap the names and scores of the two players (in these four lines)
 			self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
 			self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
 			self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
 			self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 			pygame.time.wait(500)
 			self.the_rack.UncoverRack()
-			
-			"""
-			self.tile_placement_locations.clear()
-		
-			self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
-			self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
-			self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
-			self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
-
-			#print (self.the_game.GetCurrentPlayerLetterTiles())
-			#print (self.the_game.GetCurrentPlayerName(), "name")
-			self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
-			self.the_rack.UncoverRack()
-				"""
-	"""
-	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
-	def BeforeEachTurn(self):		
-		self.tile_placement_locations.clear()
-		
-		self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
-		self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
-		self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
-		self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
-		
-		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
-		self.the_rack.UncoverRack()
-	"""
 
 	def Update(self):
 		pass	

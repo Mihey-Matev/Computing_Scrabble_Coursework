@@ -42,7 +42,6 @@ class Game:
 		dict_file = open(str(sys.path[0]) + "/dictionary", "r")
 		self.my_dict = dict_file.read().strip().upper().split("\n")
 		dict_file.close()
-		#print(self.my_dict[:20])
 		
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		self.current_player = self.players[self.current_player_num]
@@ -69,8 +68,7 @@ class Game:
 		# gameplay variables; work similarly to how they do in GameScene
 		self.tile_placement_locations = []		# helps out in checking if the word submitted is valid and putting all tiles back onto the player's rack if they wish
 		self.winner = None
-		self.score_each_turn = []
-		#self.BeforeEachTurn()		
+		self.score_each_turn = []	# helps in checking if the last three turns no moves have been made
 		self.DealOutLetterTiles()
 		
 	# Moves a tile from a given position in the player's rack to a given position on the board
@@ -138,18 +136,15 @@ class Game:
 		elif len(self.tile_placement_locations) == 1:
 			valid = True
 		else:
-			valid = False		
-		print ("hi2", valid)
+			valid = False	
 		# then we can check if the word is connected to a branch of the already existing words
 		if valid:
 			for pos in self.tile_placement_locations:	# check each tile which has been placed down for whether its position is valid; if one is invalid, then the word cannot be submitted.
 				if not self.IsTileConnectedToSubmittedTiles(pos):
 					valid = False
 					break		
-		print ("hi4", valid)
-		if valid:
+		if valid:	# finally, if the word has passed all of the previous checks, we can also check to make sure that all of the words on the board are valid words
 			valid = self.IsWordAWord()
-		print ("hi3", valid)
 		return valid		
 		
 		
@@ -166,20 +161,19 @@ class Game:
 			valid = True
 		return valid
 	
+	# checks if all of the words on the board are valid words
 	def IsWordAWord(self):
-		row_strings = []
-		column_strings = [""] * len(self.the_board[0])
+		# firstly, we split the problem up into parts; if all of the words in each row and all of the words in each column are valid (excluding single letter words), then we can know that the board is in a vliad position
+		row_strings = []	# contains all of the string (of letters) in each row
+		column_strings = [""] * len(self.the_board[0])	# contains all of the string (of letters) in each column
 		row_num = 0
-		#column_string = ""
-		while row_num < len(self.the_board):
+		while row_num < len(self.the_board):	# iterate through the board to collect all strings in columns and rows
 			column_num = 0
 			row_string = ""
 			while column_num < len(self.the_board[row_num]):
 				char = self.GetLetterOfTileInHolderAtPos((column_num, row_num))
 				if char != None:
 					row_string += char
-					#if char == None:
-					#	char = " "
 					column_strings[column_num] += char
 				elif row_string != "":
 					row_strings.append(row_string)
@@ -191,50 +185,33 @@ class Game:
 			if row_string != "":
 				row_strings.append(row_string)
 			row_num += 1
-			
 		
-		i = 0
-		while i < len(column_strings):
-			if column_strings[i] == "":
-				column_strings.pop(i)
-			elif " " in column_strings[i]:
-				column_strings += column_strings.pop(i).split(" ")
-			else:
-				i += 1
-		
-		
-		print ("-------------------------------")
-		print (row_strings)
-		print (column_strings)
-		print ("-------------------------------")
-		
+		# we check if each word in each row is a vlid word (by making sure it's in the dictionary)
 		valid = True
 		for string in row_strings:
-			if not string in self.my_dict and len(string) > 1:
+			if not string in self.my_dict and len(string) > 1:	# if its length is one, it is not considered to be a work
 				valid = False
 				break
-		print ("hi5", valid)
-		if valid:
+		if valid:	# if the words in the rows are valid, we check if each word in each column is a vlid word (by making sure it's in the dictionary)
 			for string in column_strings:
 				if not string in self.my_dict and len(string) > 1:
 					valid = False
 					break
-		print ("hi6", valid)
 		
-		if len(row_strings) == 1 and len(column_strings) == 1 and not row_strings[0] in self.my_dict:
+		if len(row_strings) == 1 and len(column_strings) == 1 and not row_strings[0] in self.my_dict:	# if the player has submitted a single letter as a word and it isn't in the dictionary as a word, then it is invalid (this check has to be done as the above checks ignore the case of a string which is one long)
 			valid = False
-		print ("hi7", valid)
 					
 		return valid
 	
 	# calculates the number of points which the submitted word should score
 	def CalculateWordScore(self):
-		score = 0
+		# similarly to how we check if a word is a word (i.e. in the dictinoary) by splitting it up into checking the cases for rows and columns, we do that here as well, but this time we don't store the substrings, but their positions
 		
+		score = 0		
+		# so firstly we see the full string stored in each row and column, and store those in the following two lists; we use a string with a space (" ") for tiles which have no tile on them
 		row_strings = []
 		column_strings = [""] * len(self.the_board[0])
 		row_num = 0
-		#column_string = ""
 		while row_num < len(self.the_board):
 			column_num = 0
 			row_string = ""
@@ -247,22 +224,18 @@ class Game:
 				column_num += 1	
 			row_strings.append(row_string)
 			row_num += 1
-		
-		"""
-		print ("-------------------------------")
-		print (row_strings)
-		print (column_strings)
-		print ("-------------------------------")
-		"""
+			
+			
+		# We then need to check which row and column or rows and column or columns and row or have been affected by the player making the move which they have made; the position of each new word created are stored in a sublist in one of the following two lists; we  can then use these positions to calculate the score of the word (as we need to consider multipliers and tiles which were placed before this turn)
 		scoring_positions_x = []
 		scoring_positions_y = []
-		if len(self.tile_placement_locations) == 1:
+		if len(self.tile_placement_locations) == 1:		# if they have only placed don one tile, then we only need to check one row and one column 
 			# checking rows
 			start_pos = self.tile_placement_locations[0]
 			scoring_positions_x.append([])
 			
+			# We look for the full word created in the same row, and get the positions of each letter in that word, by going both to the left and to the right of the tile palced down until we either meet a board boundary or a holder which contains no tile			
 			test_pos = (start_pos[0] - 1, start_pos[1])
-			#char = row_strings[test_pos]
 			while test_pos[0] >= 0 and row_strings[start_pos[1]][test_pos[0]] != " ":
 				scoring_positions_x[0].append(test_pos)
 				test_pos = (test_pos[0] - 1, test_pos[1])
@@ -274,8 +247,9 @@ class Game:
 				test_pos = (test_pos[0] + 1, test_pos[1])
 				
 			# checking columns		
-			scoring_positions_y.append([])
-			
+			scoring_positions_y.append([])			
+						
+			# We look for the full word created in the same column, and get the positions of each letter in that word, by going both to the left and to the right of the tile palced down until we either meet a board boundary or a holder which contains no tile	
 			test_pos = (start_pos[0], start_pos[1] - 1)					
 			while test_pos[1] >= 0 and column_strings[start_pos[0]][test_pos[1]] != " ":
 				scoring_positions_y[0].append(test_pos)
@@ -286,11 +260,12 @@ class Game:
 			while test_pos[1] <= 14 and column_strings[start_pos[0]][test_pos[1]] != " ":
 				scoring_positions_y[0].append(test_pos)
 				test_pos = (test_pos[0], test_pos[1] + 1)	
-		elif self.tile_placement_locations[0][1] == self.tile_placement_locations[1][1]:	# if the word has been placed in a row
+		elif self.tile_placement_locations[0][1] == self.tile_placement_locations[1][1]:	# if the word has been placed in a row, we need to check the score they get in that row, and in all of the columns which were affected by the intersection of this row with columnar words
 			# checking rows
 			start_pos = self.tile_placement_locations[0]
 			scoring_positions_x.append([])
-			
+									
+			# We look for the full word created in the row, and get the positions of each letter in that word, by going both to the left and to the right of the tile palced down until we either meet a board boundary or a holder which contains no tile	
 			test_pos = (start_pos[0] - 1, start_pos[1])
 			while test_pos[0] >= 0 and row_strings[start_pos[1]][test_pos[0]] != " ":
 				scoring_positions_x[0].append(test_pos)
@@ -302,7 +277,8 @@ class Game:
 				scoring_positions_x[0].append(test_pos)
 				test_pos = (test_pos[0] + 1, test_pos[1])
 				
-			# checking columns		
+			# checking columns; if the word was placed in a row, there is a possibility of multiple words in the columns, which is why we have to check each column which was altered by the player making their move			
+			# We look for the full word created in the same row, and get the positions of each letter in that word, by going both to the left and to the right of the tile palced down until we either meet a board boundary or a holder which contains no tile, and we repeat this for each tile which the player palced down this turn.
 			for n in range(len(self.tile_placement_locations)):
 				scoring_positions_y.append([])
 				start_pos = self.tile_placement_locations[n]
@@ -317,10 +293,10 @@ class Game:
 				while test_pos[1] <= 14 and column_strings[start_pos[0]][test_pos[1]] != " ":
 					scoring_positions_y[n].append(test_pos)
 					test_pos = (test_pos[0], test_pos[1] + 1)
-				#print (scoring_positions_y, "hello1")
 			
-		elif self.tile_placement_locations[0][0] == self.tile_placement_locations[1][0]:	# if the word has been placed in a column
-			# checking rows
+		elif self.tile_placement_locations[0][0] == self.tile_placement_locations[1][0]:	# if the word has been placed in a column, we need to check the score they get in that column, and in all of the rows which were affected by the intersection of this column with words on rows
+			# checking rows; if the word was placed in a column, there is a possibility of multiple words in the rows, which is why we have to check each row which was altered by the player making their move			
+			# We look for the full word created in the same column, and get the positions of each letter in that word, by going both to the left and to the right of the tile palced down until we either meet a board boundary or a holder which contains no tile, and we repeat this for each tile which the player palced down this turn.
 			for n in range(len(self.tile_placement_locations)):	
 				scoring_positions_x.append([])							
 				start_pos = self.tile_placement_locations[n]
@@ -350,25 +326,17 @@ class Game:
 			while test_pos[1] <= 14 and column_strings[start_pos[0]][test_pos[1]] != " ":
 				scoring_positions_y[0].append(test_pos)
 				test_pos = (test_pos[0], test_pos[1] + 1)
-			#print (scoring_positions_y, "hello2")
 			
 		i = 0
-		print (scoring_positions_x)
 		for word_pos in scoring_positions_x:
-			if len(word_pos) > 1:				
-				print ("i1 ", i)
+			if len(word_pos) > 1:	
 				i += 1
-				score += self.FindWordScoreForLine(word_pos)
-		print ("\n----------------------------")
-		
+				score += self.FindWordScoreForWordAtPoss(word_pos)		
 		i = 0
-		print (scoring_positions_y)
 		for word_pos in scoring_positions_y:
 			if len(word_pos) > 1:
-				print ("i2 ", i)
 				i += 1
-				score += self.FindWordScoreForLine(word_pos)
-		print ("\n----------------------------")
+				score += self.FindWordScoreForWordAtPoss(word_pos)
 		
 		
 		# adding on the extra 35 points of the player manages to use up all of their tiles
@@ -376,12 +344,11 @@ class Game:
 			score += 35		
 		return score
 		
-	def FindWordScoreForLine(self, poss):
+	def FindWordScoreForWordAtPoss(self, poss):
 		current_word_score = 0
 		multiplier = 1
 		for letter_pos in poss:
 			tile_holder = self.the_board[letter_pos[1]][letter_pos[0]]
-			print (tile_holder, end="")
 			if tile_holder[1] == "DL" and not tile_holder[2]:
 				current_word_score += 2 * tile_holder[0][1]
 			elif tile_holder[1] == "TL" and not tile_holder[2]:
@@ -394,7 +361,6 @@ class Game:
 				current_word_score += tile_holder[0][1]
 			else:
 				current_word_score += tile_holder[0][1]
-		print ("")
 		current_word_score *= multiplier
 		return current_word_score
 	
@@ -403,18 +369,15 @@ class Game:
 		self.current_player_num = (self.current_player_num + 1) % len(self.players)
 		self.current_player = self.players[self.current_player_num]	
 		
-	# this is the method called once the user presses the 'submit word' button in GameScene (i.e. once they want to confirm their play)
+	# this is the method called once the user presses the 'submit word' button in GameScene (i.e. once they want to confirm their play); returns True for a valid input, false for an invalid input
 	def SubmitWord(self):		
-		if self.IsWordValid():
-			#print ("hi1")
-			self.score_each_turn.append(self.CalculateWordScore())
-			self.current_player.UpdateScore(self.score_each_turn[-1])
-			for location in self.tile_placement_locations:
+		if self.IsWordValid():	# if the the user has submitted their word, and the word is valid
+			self.score_each_turn.append(self.CalculateWordScore())	# calculate the number of points they deserve...
+			self.current_player.UpdateScore(self.score_each_turn[-1])	#... and update their score
+			for location in self.tile_placement_locations:		# change the status of each holder which has had a tile put onto that this tile has been used on a previous turn (helps with checking usage of multipliers)
 				self.the_board[location[1]][location[0]][2] = True
-			self.tile_placement_locations.clear()			
-			#self.NextPlayer()
+			self.tile_placement_locations.clear()	
 			self.AfterEachTurn()
-			#self.BeforeEachTurn()
 			return True
 		else:
 			return False	
@@ -423,21 +386,15 @@ class Game:
 		self.CheckWinner()
 		self.NextPlayer()
 		self.DealOutLetterTiles()
-		#print (self.score_each_turn)
-		#print (self.winner)
 		
 	def PassTurn(self):
 		self.ReturnMovedTilesToRack()
 		self.score_each_turn.append(0)
 		self.AfterEachTurn()
-		#self.NextPlayer()
-		#self.BeforeEachTurn()
 		
 	def CheckWinner(self):
-		#print (self.GetRemainingTilesForCurrentPlayer())
-		current_player_rack = self.current_player.GetLetterTiles()
-		#print (current_player_rack)		
-		if (7 - current_player_rack.count(None)) == 0 and sum(self.GetRemainingTilesForCurrentPlayer().values()) <= 7:
+		current_player_rack = self.current_player.GetLetterTiles()	
+		if (7 - current_player_rack.count(None)) == 0 and sum(self.GetRemainingTilesForCurrentPlayer().values()) <= 7:	# If the current player has just used up all of their tiles, this means that the game should end
 			score_delta = 0
 			for tile in current_player_rack:
 				if tile != None:
@@ -452,6 +409,7 @@ class Game:
 			else:
 				self.winner = "No-one won"
 		elif (self.current_player.GetScore() != 0 or self.GetNextPlayer().GetScore() != 0) and len(self.score_each_turn) >= 3 and self.score_each_turn[-1] == 0 and self.score_each_turn[-2] == 0 and self.score_each_turn[-3] == 0:	# if three successive turns with no scoring have occurred, then this should also end the game
+			# These are just calculations for announcing who won the game.
 			if self.current_player.GetScore() > self.GetNextPlayer().GetScore():
 				self.winner = self.current_player.GetName()
 			elif self.current_player.GetScore() < self.GetNextPlayer().GetScore():
@@ -519,26 +477,13 @@ class Game:
 	def GetNextPlayerScore(self):
 		return self.GetNextPlayer().GetScore()	
 		
-	# an intermediate method which is called before each turn
-	#def BeforeEachTurn(self):
-	#	self.DealOutLetterTiles()	
-		
-	"""
-	def AfterEachTurn(self):
-		self.CheckWinner()
-		print (self.score_each_turn)
-		print (self.winner)
-	"""
-		
 	def GetLetterOfTileInHolderAtPos(self, pos):
 		if self.the_board[pos[1]][pos[0]][0] != None:
 			return self.GetTileAtPos(pos[0], pos[1])[0]
-			#return self.the_board[pos[1]][pos[0]][0][0]
 	
 	def GetScoreOfTileInHolderAtPos(self, pos):
 		if self.the_board[pos[1]][pos[0]][0] != None:
 			return self.GetTileAtPos(pos[0], pos[1])[1]
-			#return self.the_board[pos[1]][pos[0]][0][1]
 		
 	# gets the remaining lettertiles which the current player is meant to be able to see; this is used when the player wants to see the tiles left in the tilebag (i.e. when they press the 'Tile Bag' button)
 	def GetRemainingTilesForCurrentPlayer(self):

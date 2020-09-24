@@ -22,6 +22,8 @@ class TileBagPopUp(VO.VisualObject):
 		self.instruction_text.SetPosition((self.position[0] + 0.5 * self.width - 0.5 * self.instruction_text.GetSize()[0], self.position[1] + 0.5 * self.instruction_text.GetSize()[1]))
 		
 		characters = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ*")
+		
+		# These are the tiles which the player can see' we initialise each one of the 27, calculate their positions, and store them in a list for later use
 		self.tiles = {characters[n]:GLetterTile.GLetterTile(
 											colour = (210, 210, 0),
 											position = (self.position[0] + 0.5 * self.tile_width + (n % 10) * 1.5 * (self.tile_width), self.position[1] + self.tile_height * 2 + int(n / 10) * self.tile_height * 1.8),
@@ -29,15 +31,15 @@ class TileBagPopUp(VO.VisualObject):
 											height = self.tile_height, 
 											outline_colour = (100, 100, 0), 
 											text = characters[n],
-											text_size = round(0.75 * (self.tile_width - 12)), 
+											text_size = round(0.49 * (self.tile_width)), 
 											text_colour = (0, 0, 0), 
 											fade_value = 20,
 											is_active = False,
 											outline_size = 4,
-											point_worth = ""
-											)
+											point_worth = "")
 											for n in range(27)}
 		
+		# These are textboxes which just display how much of each tile there is
 		self.numbers_of_tiles = {characters[n]:TextBox.TextBox(
 												position = (self.position[0] + 0.6 * self.tile_width + (n % 10) * 1.5 * (self.tile_width), self.position[1] + self.tile_height * 3 + int(n / 10) * self.tile_height * 1.8),
 												text = "0", 
@@ -73,8 +75,6 @@ class TileBagPopUp(VO.VisualObject):
 		self.events = events
 		for letter, amount in tiles_amounts.items():
 			self.numbers_of_tiles[letter].SetText(amount)
-		#for letter, tile in self.tiles.items():
-		#	self.numbers_of_tiles[letter].SetText(tiles_amounts[letter])
 		
 		# If the player presses on the 'x' button, then the object returns true, which can be handled appropriately (to end the event)
 		self.exit_btn.IsOver(pygame.mouse.get_pos())
