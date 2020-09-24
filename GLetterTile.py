@@ -18,7 +18,8 @@ class GLetterTile(Btn.Button):
 				outline_size = 4,
 				point_worth = 0):
 
-		super(GLetterTile, self).__init__(colour, position, width, height, outline_colour, text, text_size, text_colour, fade_value, is_active, outline_size)		
+		super(GLetterTile, self).__init__(colour, position, width, height, outline_colour, text, text_size, text_colour, fade_value, is_active, outline_size)
+		
 		
 		self.point_text = TextBox.TextBox(
 									(0, 0),
@@ -29,26 +30,28 @@ class GLetterTile(Btn.Button):
 									)
 		self.SetPointWorthTextPosition()
 		
-	# Similarly to other visual objects which contain other visual objects, this one also needs to set the position of the objects which it contains
 	def SetPosition(self, position):
 		super(GLetterTile, self).SetPosition(position)
 		self.SetPointWorthTextPosition()
+
 		
-	# calculates the position for the point text
 	def SetPointWorthTextPosition(self):
-		self.point_text.SetPosition((self.position[0] + 2 * self.width / 3.4, self.position[1] + 2 * self.height / 3))		
+		self.point_text.SetPosition((self.position[0] + 2 * self.width / 3.4, self.position[1] + 2 * self.height / 3))
+		
 	
 	def Draw(self, surface):
 		super(GLetterTile, self).Draw(surface)
-		self.point_text.Draw(surface)		
+		self.point_text.Draw(surface)
+		
 		
 	def __str__(self):
-		return self.GetText()	
+		return self.GetText()
+	
 	
 	def __int__(self):
-		return int(self.point_text.GetText())		
+		return int(self.point_text.GetText())
+		
 	
-	# If I want to change what a tile looks like, I can do so using this method. This is used when I am populating the (visual) rack
 	def ChangeLooks(self, letter = None, point_worth = None, colour = None, outline_colour = None):
 		if letter == None:
 			letter = self.btn_text.GetText()
@@ -62,7 +65,8 @@ class GLetterTile(Btn.Button):
 		self.btn_text.SetText(letter)
 		self.point_text.SetText(point_worth)
 		self.colour = colour
-		self.outline_colour = outline_colour				
+		self.outline_colour = outline_colour
+				
 		
 	def GetPointWorth(self):
 		return int(self.point_text.GetText())

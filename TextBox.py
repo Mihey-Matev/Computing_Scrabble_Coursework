@@ -10,12 +10,16 @@ class TextBox(VO.VisualObject):
 		self.text = str(text)
 		self.position = position
 		
-	# uses pygame to draw the text
 	def Draw(self, surface):
-		surface.blit(self.the_text, self.position)		
+		# this allows me to draw the button on a different surface with different coordinates, but it will still be interacted with with the main surface's coordinates
+		#if position is None:
+		#	position = self.position
+		surface.blit(self.the_text, self.position)
+		
 	
 	def SetPosition(self, position):
-		self.position = position	
+		self.position = position
+	
 		
 	def GetSize(self):
 		return (self.the_text.get_width(), self.the_text.get_height())
@@ -25,9 +29,9 @@ class TextBox(VO.VisualObject):
 		self.text = text
 	
 	def GetText(self):
+		#return self.the_text
 		return self.text
 	
-	# if used in the context of a string, then use its self.text attribute
 	def __str__(self):
 		return self.text
 		

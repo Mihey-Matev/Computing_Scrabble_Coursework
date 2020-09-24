@@ -31,6 +31,10 @@ class GameScene(Scene.Scene):
 		# Rack calculations and instantiation
 		self.tile_size = self.the_board.GetTileSize()
 		self.the_rack = self.AddVONonBtn(Rack.Rack(tile_width = self.tile_size[0], tile_height = self.tile_size[1]), (0.25 * self.width, board_position[1] + 0.5 * board_height - 5 * self.tile_size[1]))
+		"""
+		self.clicked_rack_tile = None
+		self.clicked_board_tile = None
+		"""
 		
 		# Creation of the other buttons for this scene
 		self.submit_btn = Btn.Button(colour = (161,111,80), position = (0, 0), width = self.width/7, height = 3 * self.tile_size[1] / 2, outline_colour = (109, 67, 19), text = "Submit Word", text_size = 30, text_colour = (0, 0, 0), fade_value = 20)
@@ -64,7 +68,8 @@ class GameScene(Scene.Scene):
 		self.board_selection = None		
 		
 		self.BeforeEachTurn()
-			
+		
+		
 	def PassTurn(self):
 		self.the_rack.CoverRack()
 		self.ReturnMovedTilesToRack()
@@ -75,25 +80,25 @@ class GameScene(Scene.Scene):
 		self.the_game.PassTurn()
 		self.BeforeEachTurn()
 	
-	# puts the tiles which have been moved this turn back onto the rack
+	
 	def ReturnMovedTilesToRack(self):
 		for pos in self.tile_placement_locations:
 			self.the_board.GetHolderAtPos(pos[0], pos[1]).RemoveTile()
 		self.tile_placement_locations.clear()
+		#print (self.the_game.GetCurrentPlayerLetterTiles())
 		self.the_game.ReturnMovedTilesToRack()
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 	
-	# both puts the tiles which have been moved this turn back onto the rack, and shuffles them
+	
 	def ShuffleTiles(self):
 		self.ReturnMovedTilesToRack()
 		self.the_game.ShuffleTiles()
 	
-	# the player which resigns loses, so the winning player wins, and this is reflected by changing the variable self.winner (which is checked for in ProcessInput())
+	
 	def Resign(self):
 		self.winner = self.the_game.Resign()
 			
 			
-	# this method draws a panel which announces the winner which stays active for some period of time
 	def CongratulateWinner(self):
 		self.MakeAllVOsUninteractive()
 		pygame.draw.rect(self.surface, (192, 135, 82), (self.width * 0.25 , self.height * 0.25, self.width * 0.5, self.height * 0.5), 0)
@@ -109,18 +114,22 @@ class GameScene(Scene.Scene):
 		pygame.display.get_surface().blit(self.surface, (0, 0))
 		pygame.display.update()		
 		self.HideAllVOs()
-		pygame.time.wait(3500)	
+		pygame.time.wait(3500)		
 	
-	# this method is where all calculations take palce
+	#def MoveTileTo(self, from_holder, to_holder):		
+	#	if from_holder.MoveTileTo(to_holder):
+	#		if 
+	
+		
 	def ProcessInput(self, events):								
-		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
+		if self.winner != None:
 			self.CongratulateWinner()
 			return True
 				
 		self.events = events
 		
-		# dealing with buttons which are events which can happen in a scrabble game.
-		if not self.game_scene_btns in self.uninteractive_VOs:		# each time there is a check such as this, it is to make sure that the visual object has not been disabled, as if it has, then we shouldn't be abble to interact with it.
+		# dealing with misc. buttons
+		if not self.game_scene_btns in self.uninteractive_VOs:
 			clicked_btn_num = self.game_scene_btns.ProcessInput(events)
 			if clicked_btn_num == 0:			
 				self.DisplayRemainingTiles()
@@ -133,12 +142,15 @@ class GameScene(Scene.Scene):
 			elif clicked_btn_num == 4:
 				self.Resign()
 		
-		# Dealing with buttons that belong to the scene explicitly (i.e. only the Submit Word button). If it was clicked, then we firstly check if the logical game agrees with the input, and if it does, we go through with the events for a valid word submission.
+		# Dealing with buttons that belong to the scene explicitly (i.e. only the Submit Word button)
 		btn_clicked = self.ButtonClicked()
 		if btn_clicked == self.submit_btn:
+			#self.the_game.SubmitWord()
 			if self.the_game.SubmitWord():
 				self.SubmitWord()
 			
+			
+		#self.selected_tile = None
 		self.rack_tileholder_clicked_last = None
 		
 		# getting the tile which was clicked on the rack
@@ -153,6 +165,10 @@ class GameScene(Scene.Scene):
 					self.CancelMoves()
 				else:
 					self.CancelMoves()
+					
+		#if not self.choose_wildcard_interface in self.disabled_VOs:
+		#	wild_card_choice = self.choose_wildcard_interface.ProcessInput(events)
+		
 		
 		# getting the tile which was clicked on the board
 		if not self.the_board in self.uninteractive_VOs:
@@ -174,6 +190,18 @@ class GameScene(Scene.Scene):
 					self.CancelMoves()
 		
 			# Take action (i.e. move tile) based on above checks
+			#print ("--------------")
+			#print (self.rack_selection)
+			#print (self.board_selection)
+			#print (self.tile_placement_locations)
+			#print ("--------------")
+			"""
+			for n in self.the_game.the_board:
+				for m in n:
+					print (str(m[0]) + ", ", end="")
+				print ("")
+			print ("----------------------------------------------")
+			"""
 			if self.rack_selection != None and self.rack_selection[0] != None and self.board_selection != None and self.board_selection[0] != None:			
 				if self.rack_tileholder_clicked_last:
 					if self.board_selection[0].MoveTileTo(self.rack_selection[0]):	# moving a lettertile from the board back to the rack						
@@ -190,13 +218,37 @@ class GameScene(Scene.Scene):
 					self.tile_placement_locations.append(self.board_selection[1])					
 				self.CancelMoves()
 				
+				
+		#self.board_selection = None
+		#if not (self.board_selection is None):
+		#	self.board_selection = self.board_selection[1]
+				
 		# deselection actions other than above ones (such as right clicking etc)
 		for event in self.events:
 			if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 3):
 				self.CancelMoves()
 
+		
+		
+				
+	"""
+		if self.clicked_rack_tile is None:
+			self.clicked_rack_tile = self.the_rack.ProcessInput(events)
+		else:			
+			self.clicked_board_tile = self.the_board.ProcessInput(events)
+			if not (self.clicked_board_tile is None):
+				self.clicked_rack_tile.SetPosition(self.clicked_board_tile.GetPosition())
+				self.clicked_board_tile.ToggleIsActive()
+				
+				self.clicked_rack_tile = None
+				self.clicked_board_tile = None				
+	"""
+
 	# function returns the letter which the player chooses for their wildcard
 	def ChooseWildCardLetter(self):
+		"""
+		return "A"
+		"""
 		current_uninteractive_VOs = list(self.uninteractive_VOs)		
 		self.MakeAllVOsUninteractive()
 		self.DisplayVO(self.choose_wildcard_interface)
@@ -206,13 +258,16 @@ class GameScene(Scene.Scene):
 		letter_choice = None
 		while letter_choice == None:
 			events = pygame.event.get()
+			#print (self.disabled_VOs)
 			self.Draw()
 			pygame.display.update()
 			letter_choice = self.choose_wildcard_interface.ProcessInput(events)
 			for event in events:
 				if event.type == pygame.QUIT:
 					self.Quit()
+			#print (str(letter_choice))
 					
+		#self.MakeAllVOsInteractive()
 		self.uninteractive_VOs = list(current_uninteractive_VOs)
 		self.HideVO(self.choose_wildcard_interface)
 		self.MakeVOUninteractive(self.choose_wildcard_interface)
@@ -221,26 +276,24 @@ class GameScene(Scene.Scene):
 		
 	# causes and event to occur which displays all of the tiles which are left in the tilebag
 	def DisplayRemainingTiles(self):
-		# making it so that the user can only interact with the swap panel and their rack; everything else is disabled.
-		current_uninteractive_VOs = list(self.uninteractive_VOs)	# this list is a temporary one helping me to get back to the state which I started in before the event (i.e. where the required elements are interactive)
+		current_uninteractive_VOs = list(self.uninteractive_VOs)
 		self.MakeAllVOsUninteractive()
 		self.DisplayVO(self.show_tilebag)
 		self.MakeVOInteractive(self.show_tilebag)
 		self.Draw()
 		
-		remaining_tiles = self.the_game.GetRemainingTilesForCurrentPlayer()		# this is a list of all of the letters of tiles which should be displayed
+		remaining_tiles = self.the_game.GetRemainingTilesForCurrentPlayer()
 		
 		exit = False
 		while not exit:
 			events = pygame.event.get()
 			self.Draw()
 			pygame.display.update()
-			exit = self.show_tilebag.ProcessInput(events, remaining_tiles)		# loop exits once the 'x' button of the new opened panel has been clicked
+			exit = self.show_tilebag.ProcessInput(events, remaining_tiles)
 			for event in events:
 				if event.type == pygame.QUIT:
 					self.Quit()
 			
-		# returns the state of the game to what it was before the event (so that the user can interacr with the board, rack and buttons, but not the panel opened by the event)
 		self.uninteractive_VOs = list(current_uninteractive_VOs)
 		self.HideVO(self.show_tilebag)
 		self.MakeVOUninteractive(self.show_tilebag)
@@ -250,7 +303,9 @@ class GameScene(Scene.Scene):
 	def CancelMoves(self):
 		self.board_selection = None
 		self.rack_selection = None
-		
+		#self.the_game.CancelTileSelection()
+
+
 	
 	def SwapTiles(self):
 		self.ReturnMovedTilesToRack()
@@ -296,10 +351,10 @@ class GameScene(Scene.Scene):
 		self.HideVO(self.swap_tiles)
 		self.MakeVOUninteractive(self.swap_tiles)
 		
-		num_of_remaining_tiles = len(self.the_game.GetRemainingTilesForCurrentPlayer())
-		if len(list_of_tiles_to_swap) != 0 and exit_event and num_of_remaining_tiles - 7 >= len(list_of_tiles_to_swap):	# for the user to have successfully passed a turn, they must have both selected tiles to swap out, clicked the submit button, and not tried to swap tiles when there are none to swap
+		if len(list_of_tiles_to_swap) != 0 and exit_event:		# for the user to have successfully passed a turn, they must have both selected tiles to swap out, and clicked the submit button
 			self.the_game.SwapTiles(list_of_tiles_to_swap)
 			self.PassTurn()
+
 	
 	def SubmitWord(self):
 		for holder in self.tile_placement_locations:
@@ -307,6 +362,7 @@ class GameScene(Scene.Scene):
 		for y in range(15):		# this part generates a new lettertile in any position which should have a lettertile in it, but doesn't; this will come in useful once the AI can place tiles down onto the board (which wont be displayed, as the AI will only do it logically)
 			for x in range(15):
 				if self.the_game.GetTileAtPos(x, y) != None and str(self.the_board.GetHolderAtPos(x, y).GetTile()) != str(self.the_game.GetTileAtPos(x, y)[0]):
+					#print (str(self.the_board.GetHolderAtPos(x, y).GetTile()), self.the_game.GetTileAtPos(x, y))
 					self.the_board.GetHolderAtPos(x, y).PlaceTile(GLetterTile.GLetterTile(
 										colour = (215, 215, 0),
 										width = self.tile_size[0], 
@@ -327,8 +383,10 @@ class GameScene(Scene.Scene):
 			self.the_rack.CoverRack()		
 			self.Draw()
 			pygame.display.update()	
-			pygame.time.wait(5000)
+			pygame.time.wait(500)
 			self.BeforeEachTurn()
+				
+	
 	
 		
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
@@ -337,16 +395,36 @@ class GameScene(Scene.Scene):
 		
 		self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
 		self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
+		#self.current_player_name = self.the_game.GetCurrentPlayerName()
+		#self.current_player_score = self.the_game.GetCurrentPlayerScore()
+		#self.current_player_rack = self.GetCurrentPlayerRack()
+		#print (self.the_game.GetCurrentPlayerName())
 		self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
 		self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
+		#print (self.the_game.GetNextPlayerName())
+		#self.next_player_name = self.the_game.GetNextPlayerName()
+		#self.next_player_score = self.the_game.GetNextPlayerScore()
+		#self.next_player_rack = self.GetNextPlayerRack()
 		
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 		self.the_rack.UncoverRack()
+		
+		
+	def GetNextPlayerRack(self):
+		return
+	
+	
+	def GetCurrentPlayerRack(self):
+		return
 
+	
 	def Update(self):
-		pass	
+		# Game logic would go here
+		pass
+	
 	
 	def Quit(self):
+		self.quit_flag = True
 		pygame.display.quit()
 		pygame.quit()
 		raise SystemExit

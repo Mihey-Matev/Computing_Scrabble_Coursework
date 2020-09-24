@@ -32,8 +32,6 @@ class Scene:
 			if not (position is None):
 				button.SetPosition(position)
 		self.my_visual_objects.append(self.my_buttons[-1])
-		if hidden:
-			self.HideVO(self.my_buttons[-1])
 		return self.my_buttons[-1]		
 	
 	def AddText(self, position = (0, 0), text = "", font_size = 30, font_family = "arial", text_colour = (0, 0, 0)):
@@ -46,6 +44,7 @@ class Scene:
 			VO.SetPosition(pos)
 		if hidden:
 			self.HideVO(VO)
+			#self.hidden_VOs.append(VO)
 		return self.my_visual_objects[-1]
 		
 	
@@ -60,35 +59,43 @@ class Scene:
 		
 	def HideVO(self, VO):
 		if not VO in self.hidden_VOs:
-			self.hidden_VOs.append(VO)		
+			self.hidden_VOs.append(VO)
+		
 	
 	def DisplayVO(self, VO):
 		if VO in self.hidden_VOs:
-			self.hidden_VOs.remove(VO)		
+			self.hidden_VOs.remove(VO)
+		
 		
 	def MakeVOUninteractive(self, VO):
 		if not VO in self.uninteractive_VOs:
-			self.uninteractive_VOs.append(VO)	
+			self.uninteractive_VOs.append(VO)
+	
 	
 	def MakeVOInteractive(self, VO):
 		if VO in self.uninteractive_VOs:
-			self.uninteractive_VOs.remove(VO)			
+			self.uninteractive_VOs.remove(VO)
+			
 			
 	def DisplayAndInteractiveVO(self, VO):
 		self.MakeVOInteractive(VO)
-		self.DisplayVO(VO)		
+		self.DisplayVO(VO)
+		
 	
 	def HideAndUninteractiveVO(self, VO):
 		self.MakeVOUninteractive(VO)
-		self.UndisplayVO(VO)		
+		self.UndisplayVO(VO)
+		
 		
 	def MakeAllVOsUninteractive(self):
 		for VO in self.my_visual_objects:
-			self.MakeVOUninteractive(VO)			
+			self.MakeVOUninteractive(VO)
+			
 			
 	def MakeAllVOsInteractive(self):
 		for VO in self.my_visual_objects:
-			self.MakeVOInteractive(VO)			
+			self.MakeVOInteractive(VO)
+			
 			
 	def HideAllVOs(self):
 		for VO in self.my_visual_objects:

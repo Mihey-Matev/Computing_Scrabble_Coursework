@@ -21,7 +21,6 @@ class WildcardPicker(VO.VisualObject):
 												)
 		self.instruction_text.SetPosition((self.position[0] + 0.5 * self.width - 0.5 * self.instruction_text.GetSize()[0], self.position[1] + 0.5 * self.instruction_text.GetSize()[1]))
 		
-		# instantiates the tiles which the user is going to click on to make their choice
 		self.tiles = [GLetterTile.GLetterTile(
 											colour = (210, 210, 0),
 											position = (self.position[0] + 0.5 * self.tile_width + (n % 10) * 1.5 * (self.tile_width), self.position[1] + self.tile_height * 2 + int(n / 10) * self.tile_height * 1.5),
@@ -37,25 +36,34 @@ class WildcardPicker(VO.VisualObject):
 											point_worth = 0
 											)
 											for n in range(26)]
+		
+
+		
 	
 	def Draw(self, surface):		
 		pygame.draw.rect(surface, self.picker_colour, (self.position, (self.width, self.height)), 0)
 		self.instruction_text.Draw(surface)		
 		for tile in self.tiles:
-			tile.Draw(surface)	
+			tile.Draw(surface)
+	
 	
 	# returns the letter which was clicked
 	def ProcessInput(self, events):
 		self.events = events
 		the_letter = self.FindClickedLetter()
+		#print (the_letter)
 		if the_letter != None:
-			return the_letter	
+			return the_letter
+	
 	
 	def SetPosition(self, position):
 		for tile in self.tiles:
 			tile.SetPosition((tile.GetPosition()[0] + position[0] - self.position[0], tile.GetPosition()[1] + position[1] - self.position[1]))
 		self.instruction_text.SetPosition((self.instruction_text.GetPosition()[0] + position[0] - self.position[0], self.instruction_text.GetPosition()[1] + position[1] - self.position[1]))
 		super(WildcardPicker, self).SetPosition(position)
+		#self.position = position
+		
+	
 	
 	def FindClickedLetter(self):
 		for tile in self.tiles:

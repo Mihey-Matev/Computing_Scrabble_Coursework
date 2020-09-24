@@ -31,6 +31,8 @@ class Button(VO.VisualObject):
 		self.width = width
 		self.height = height	
 		
+		#self.btn_text = ""
+		#if text != "":
 		font = pygame.font.SysFont('arial', text_size)
 		font_text = font.render(text, 1, text_colour)
 
@@ -56,15 +58,18 @@ class Button(VO.VisualObject):
 		if self.is_active:
 			self.SetOriginalColour()
 		else:
-			self.SetUnclickableColour()			
+			self.SetUnclickableColour()
+			
 			
 	def Deactivate(self):
 		self.is_active = False
-		self.SetUnclickableColour()		
+		self.SetUnclickableColour()
+		
 		
 	def Activate(self):
 		self.is_active = True
-		self.SetOriginalColour()		
+		self.SetOriginalColour()
+		
 		
 	def GetIsActive(self):
 		return self.is_active
@@ -100,10 +105,14 @@ class Button(VO.VisualObject):
 				break
 			
 		self.colour = tuple(colour_list)
-		self.original_colour = self.colour			
+		self.original_colour = self.colour
+		
+			
 		
 	# this method draws the button (by drawing its rectangles and text)
 	def Draw(self, surface):
+		#pygame.draw.rect(surface, self.outline_colour, (self.position[0] - 0.5 * self.outline_size, self.position[1] - 0.5 * self.outline_size,self.width + self.outline_size,self.height + self.outline_size), 0)            
+		#pygame.draw.rect(surface, self.colour, (self.position[0], self.position[1],self.width,self.height),0)
 		pygame.draw.rect(surface, self.outline_colour, (self.position[0], self.position[1], self.width, self.height), 0)
 		pygame.draw.rect(surface, self.colour, (self.position[0] + 0.5 * self.outline_size, self.position[1] + 0.5 * self.outline_size, self.width - self.outline_size, self.height - self.outline_size), 0)
         

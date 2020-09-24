@@ -13,18 +13,21 @@ class Board(VO.VisualObject):
 		self.height = height
 		self.tile_spacing = tile_spacing
 		self.buffer_around_board = buffer_around_board
+		self.tile_spacing = tile_spacing
 		
 		self.tile_height = (height - ((vertical_tile_num - 1) * (tile_spacing) + 2 * buffer_around_board)) / vertical_tile_num
-		self.tile_width = (width - ((horizontal_tile_num - 1) * (tile_spacing) + 2 * buffer_around_board)) / horizontal_tile_num		
-
-		# these are done in case the board isn't a square. It allows me to calculate size of text so it fits in the holder.
-		shorter_side_length = min(self.tile_height, self.tile_width)
-		text_size = round(0.49 * (shorter_side_length))
+		self.tile_width = (width - ((horizontal_tile_num - 1) * (tile_spacing) + 2 * buffer_around_board)) / horizontal_tile_num
 		
-		first_holder_position_help = (position[0] + buffer_around_board, position[1] + buffer_around_board)
+
+		
+		shorter_side_length = min(self.tile_height, self.tile_width)
+		PIXEL_TO_POINT_FACTOR = 0.75
+		text_size = round(PIXEL_TO_POINT_FACTOR * (shorter_side_length - 12))
+		
+		first_tile_position_help = (position[0] + buffer_around_board, position[1] + buffer_around_board)
 		self.tiles = [[LetterTileHolder.LetterTileHolder(
 								colour = tile_colour, 
-								position = (first_holder_position_help[0] + x * (self.tile_width + tile_spacing), first_holder_position_help[1] + y * (self.tile_height + tile_spacing)),
+								position = (first_tile_position_help[0] + x * (self.tile_width + tile_spacing), first_tile_position_help[1] + y * (self.tile_height + tile_spacing)),
 								width = self.tile_width,
 								height = self.tile_height,
 								outline_colour = (190, 190, 190),
@@ -40,28 +43,28 @@ class Board(VO.VisualObject):
 		# this is just one octant, which is then just reflected many times to get all eight octants
 
 		# triple letter modifier
-		self.ChangeTileHolders((6, 0), "TL", (0, 235, 0))
-		self.ChangeTileHolders((3, 3), "TL", (0, 235, 0))
-		self.ChangeTileHolders((5, 5), "TL", (0, 235, 0))
+		self.ChangeTiles((6, 0), "TL", (0, 235, 0))
+		self.ChangeTiles((3, 3), "TL", (0, 235, 0))
+		self.ChangeTiles((5, 5), "TL", (0, 235, 0))
 		
 		# double letter modifier
-		self.ChangeTileHolders((2, 1), "DL", (0, 65, 205))
-		self.ChangeTileHolders((4, 2), "DL", (0, 65, 205))
-		self.ChangeTileHolders((6, 4), "DL", (0, 65, 205))
+		self.ChangeTiles((2, 1), "DL", (0, 65, 205))
+		self.ChangeTiles((4, 2), "DL", (0, 65, 205))
+		self.ChangeTiles((6, 4), "DL", (0, 65, 205))
 		
 		# double word modifier
-		self.ChangeTileHolders((5, 1), "DW", (235, 0, 0))
-		self.ChangeTileHolders((7, 3), "DW", (235, 0, 0))
+		self.ChangeTiles((5, 1), "DW", (235, 0, 0))
+		self.ChangeTiles((7, 3), "DW", (235, 0, 0))
 		
 		# triple word modifier
-		self.ChangeTileHolders((3, 0), "TW", (229, 148, 0))
+		self.ChangeTiles((3, 0), "TW", (229, 148, 0))
 		
 		# starting position
-		self.ChangeTileHolders((7, 7), "+", (198, 70, 198))
+		self.ChangeTiles((7, 7), "+", (198, 70, 198))
 		
 	
 	# This method changes a tile in each octant;
-	def ChangeTileHolders(self, relative_coords, text = "", colour = (255, 255, 255)):
+	def ChangeTiles(self, relative_coords, text = "", colour = (255, 255, 255)):
 		for x in [relative_coords[0], -(relative_coords[0] + 1)]:
 			for y in [relative_coords[1], -(relative_coords[1] + 1)]:
 				the_tile = self.tiles[y][x]
@@ -75,7 +78,7 @@ class Board(VO.VisualObject):
 	def GetHolderAtPos(self, x, y):
 		return self.tiles[y][x]
 	
-	# the SetPosition function isn't as simple as just adjusting the coordinates of the Board object itself; it onvolves also moving all of the holders that belong to the board, which is what this method does.
+	
 	def SetPosition(self, position):
 		super(Board, self).SetPosition(position)
 		first_tile_position_help = (position[0] + self.buffer_around_board, position[1] + self.buffer_around_board)
@@ -83,13 +86,22 @@ class Board(VO.VisualObject):
 			for x, tile in enumerate(tiles_list):
 				tile.SetPosition((first_tile_position_help[0] + x * (self.tile_width + self.tile_spacing), first_tile_position_help[1] + y * (self.tile_height + self.tile_spacing)))
 		
-	# this time ProcessInput() returns the TileHolder which was clicked.
+		
 	def ProcessInput(self, events):
 		self.events = events
 		return self.FindClickedTile()
 	
 	def GetTileSize(self):
 		return (self.tile_width, self.tile_height)
+	
+	def RemoveFromTile(self, tile):
+		tile.ToggleIsActive()
+	
+	
+	def AddToTile(self, tile, visual_element):
+		visual_element.SetPosition(tile.GetPosition())
+		tile.ToggleIsActive()
+	
 	
 	# finds the tile (and its relative coordinates) which was clicked ince the last frame (similar to the scene method which finds which button was clicked)
 	def FindClickedTile(self):
