@@ -64,14 +64,17 @@ class GameScene(Scene.Scene):
 		self.board_selection = None		
 		self.deactivated_tile = None
 		
-		#self.BeforeEachTurn()
-		self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
-		self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
-		self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
-		self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
+		self.BeforeEachTurn()
+			
+	def PassTurn(self):
+		self.the_rack.CoverRack()
+		self.ReturnMovedTilesToRack()
 		
-		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
-
+		self.Draw()
+		pygame.display.update()
+		pygame.time.wait(500)
+		self.the_game.PassTurn()
+		self.BeforeEachTurn()
 	
 	# puts the tiles which have been moved this turn back onto the rack
 	def ReturnMovedTilesToRack(self):
@@ -89,7 +92,8 @@ class GameScene(Scene.Scene):
 	
 	# the player which resigns loses, so the winning player wins, and this is reflected by changing the variable self.winner (which is checked for in ProcessInput())
 	def Resign(self):
-		self.winner = self.the_game.Resign()			
+		self.winner = self.the_game.Resign()
+			
 			
 	# this method draws a panel which announces the winner which stays active for some period of time
 	def CongratulateWinner(self):
@@ -110,11 +114,13 @@ class GameScene(Scene.Scene):
 		pygame.time.wait(3500)	
 	
 	# this method is where all calculations take palce
-	def ProcessInput(self, events):
-		if self.winner != None:
+	def ProcessInput(self, events):								
+		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
+			self.CongratulateWinner()
 			return True
+				
+		self.events = events
 		
-		self.events = events		
 		# dealing with buttons which are events which can happen in a scrabble game.
 		if not self.game_scene_btns in self.uninteractive_VOs:		# each time there is a check such as this, it is to make sure that the visual object has not been disabled, as if it has, then we shouldn't be abble to interact with it.
 			clicked_btn_num = self.game_scene_btns.ProcessInput(events)
@@ -239,7 +245,6 @@ class GameScene(Scene.Scene):
 			events = pygame.event.get()
 			self.Draw()
 			pygame.display.update()
-			#print (remaining_tiles)
 			exit = self.show_tilebag.ProcessInput(events, remaining_tiles)		# loop exits once the 'x' button of the new opened panel has been clicked
 			for event in events:
 				if event.type == pygame.QUIT:
@@ -330,50 +335,19 @@ class GameScene(Scene.Scene):
 										is_active = False,
 										outline_size = 4,
 										point_worth = self.the_game.GetTileAtPos(x, y)[1])
-										)	
-		self.AfterEachTurn()		
-		#self.BeforeEachTurn()
-			
+										)
 				
-	def PassTurn(self):			
-		self.ReturnMovedTilesToRack()	
-		self.the_game.PassTurn()
-		self.AfterEachTurn()		
-		#self.BeforeEachTurn()
 	
-	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
-	def AfterEachTurn(self):
 		self.winner = self.the_game.GetWinner()	# check if there is a winner
-		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
-			self.CongratulateWinner()
-			return True
-		else:
-			self.the_rack.CoverRack()
-			self.Draw()			
+		if self.winner == None:		# if there is a winner, they would be announced; otherwise, continue with the game.
+			self.the_rack.CoverRack()		
+			self.Draw()
 			pygame.display.update()	
-			self.tile_placement_locations.clear()		
-			self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
-			self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
-			self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
-			self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
-			self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 			pygame.time.wait(500)
-			self.the_rack.UncoverRack()
-			
-			"""
-			self.tile_placement_locations.clear()
+			self.BeforeEachTurn()
+	
 		
-			self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
-			self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
-			self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
-			self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
-
-			#print (self.the_game.GetCurrentPlayerLetterTiles())
-			#print (self.the_game.GetCurrentPlayerName(), "name")
-			self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
-			self.the_rack.UncoverRack()
-				"""
-	"""
+		
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
 	def BeforeEachTurn(self):		
 		self.tile_placement_locations.clear()
@@ -385,7 +359,6 @@ class GameScene(Scene.Scene):
 		
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 		self.the_rack.UncoverRack()
-	"""
 
 	def Update(self):
 		pass	

@@ -21,7 +21,7 @@ class Player:
 	def PopulateRack(self, letters):
 		m = 0
 		for n in range(len(self.rack)):
-			if self.rack[n] == None:
+			if self.rack[n] == None and m < len(letters):
 				self.rack[n] = letters[m]
 				m += 1	
 		#self.rack[0] = ("*", 0)

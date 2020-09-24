@@ -38,7 +38,6 @@ class Game:
 							("Z", 10): 1,
 							("*", 0): 2
 							}
-		
 		dict_file = open(str(sys.path[0]) + "/dictionary", "r")
 		self.my_dict = dict_file.read().strip().upper().split("\n")
 		dict_file.close()
@@ -46,6 +45,7 @@ class Game:
 		
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		self.current_player = self.players[self.current_player_num]
+		self.BeforeEachTurn()
 		
 		# This is the main board behin the scenes. Each third level list of three elements contains the multiplier type (as a string), the tile which it holds (initially no tile, but as the players keep submitting words, that will change), and whether it has been locked (i.e. whether a tile has been placed there in a previous turn; this will be useful once calculating the score)
 		self.the_board = 			[
@@ -69,9 +69,7 @@ class Game:
 		# gameplay variables; work similarly to how they do in GameScene
 		self.tile_placement_locations = []		# helps out in checking if the word submitted is valid and putting all tiles back onto the player's rack if they wish
 		self.winner = None
-		self.score_each_turn = []
-		#self.BeforeEachTurn()		
-		self.DealOutLetterTiles()
+		self.BeforeEachTurn()
 		
 	# Moves a tile from a given position in the player's rack to a given position on the board
 	def MoveRackTileToBoard(self, from_pos, to_pos, wild_card_letter = None):	# a wild card lettertile is one which can be any letter; this is the reason for the last parameter
@@ -138,50 +136,31 @@ class Game:
 		elif len(self.tile_placement_locations) == 1:
 			valid = True
 		else:
-			valid = False		
-		#print ("hi2", valid)
+			valid = False			
 		# then we can check if the word is connected to a branch of the already existing words
 		if valid:
 			for pos in self.tile_placement_locations:	# check each tile which has been placed down for whether its position is valid; if one is invalid, then the word cannot be submitted.
 				if not self.IsTileConnectedToSubmittedTiles(pos):
 					valid = False
-					break		
-		#print ("hi4", valid)
+					break							
 		if valid:
-			valid = self.IsWordAWord()
-		#print ("hi3", valid)
+			valid = self.IsWordAWord()			
 		return valid		
-	
-	
-		
-		
-	# this function returns true if the tile being tested is in some way connected to previously submitted tiles; otherwise, it returns false. If the tile is not in the self.tile_placement_locations list, then it is assumed that the tile being tested is a submitted tile, which is the base case.
-	def IsTileConnectedToSubmittedTiles(self, tile_relative_pos, previous_pos = None):	# the last parameter is to make sure that two tiles don't infinetly check if each other are in a valid position
-		valid = False
-		if tile_relative_pos == (7, 7) and tile_relative_pos in self.tile_placement_locations:	# if this is the first word being put down, then allow user to place it down on the centre piece without any problems
-			valid = True
-		elif tile_relative_pos in self.tile_placement_locations:	# if the tile placed down 
-			for pos in [(tile_relative_pos[0] + 1, tile_relative_pos[1]), (tile_relative_pos[0] - 1, tile_relative_pos[1]), (tile_relative_pos[0], tile_relative_pos[1] + 1), (tile_relative_pos[0], tile_relative_pos[1] - 1)]:
-				if pos != previous_pos and (self.IsTileConnectedToSubmittedTiles(pos, tile_relative_pos)):
-					valid = True
-		elif tile_relative_pos[1] >= 0 and tile_relative_pos[1] <= 14 and tile_relative_pos[0] >= 0 and tile_relative_pos[0] <= 14 and self.the_board[tile_relative_pos[1]][tile_relative_pos[0]][2] == True:
-			valid = True
-		return valid
 	
 	def IsWordAWord(self):
 		row_strings = []
 		column_strings = [""] * len(self.the_board[0])
 		row_num = 0
-		#column_string = ""
+		column_string = ""
 		while row_num < len(self.the_board):
 			column_num = 0
 			row_string = ""
 			while column_num < len(self.the_board[row_num]):
 				char = self.GetLetterOfTileInHolderAtPos((column_num, row_num))
 				if char != None:
-					row_string += char
-					#if char == None:
-					#	char = " "
+					row_string += self.GetLetterOfTileInHolderAtPos((column_num, row_num))
+					if char == None:
+						char = " "
 					column_strings[column_num] += char
 				elif row_string != "":
 					row_strings.append(row_string)
@@ -207,88 +186,39 @@ class Game:
 		"""
 		valid = True
 		for string in row_strings:
-			if not string in self.my_dict and len(string) > 1:
+			if not string in self.my_dict:
 				valid = False
 				break
-		#print ("hi5", valid)
+		#print (valid)
 		if valid:
 			for string in column_strings:
-				if not string in self.my_dict and len(string) > 1:
+				if not string in self.my_dict:
 					valid = False
 					break
-		#print ("hi6", valid)
+		#print (valid)
 		
-		if len(row_strings) == 1 and len(column_strings) == 1 and not row_strings[0] in self.my_dict:
-			valid = False
-		#print ("hi7", valid)
+		if len(row_strings) == 1 and len(column_strings) == 1 and row_strings[0] in self.my_dict:
+			valid = True
 					
+		return valid
+		
+		
+	# this function returns true if the tile being tested is in some way connected to previously submitted tiles; otherwise, it returns false. If the tile is not in the self.tile_placement_locations list, then it is assumed that the tile being tested is a submitted tile, which is the base case.
+	def IsTileConnectedToSubmittedTiles(self, tile_relative_pos, previous_pos = None):	# the last parameter is to make sure that two tiles don't infinetly check if each other are in a valid position
+		valid = False
+		if tile_relative_pos == (7, 7) and tile_relative_pos in self.tile_placement_locations:	# if this is the first word being put down, then allow user to place it down on the centre piece without any problems
+			valid = True
+		elif tile_relative_pos in self.tile_placement_locations:	# if the tile placed down 
+			for pos in [(tile_relative_pos[0] + 1, tile_relative_pos[1]), (tile_relative_pos[0] - 1, tile_relative_pos[1]), (tile_relative_pos[0], tile_relative_pos[1] + 1), (tile_relative_pos[0], tile_relative_pos[1] - 1)]:
+				if pos != previous_pos and (self.IsTileConnectedToSubmittedTiles(pos, tile_relative_pos)):
+					valid = True
+		elif tile_relative_pos[1] >= 0 and tile_relative_pos[1] <= 14 and tile_relative_pos[0] >= 0 and tile_relative_pos[0] <= 14 and self.the_board[tile_relative_pos[1]][tile_relative_pos[0]][2] == True:
+			valid = True
 		return valid
 	
 	# calculates the number of points which the submitted word should score
 	def CalculateWordScore(self):
-		score = 1
-		
-		row_strings = []
-		column_strings = [""] * len(self.the_board[0])
-		row_num = 0
-		#column_string = ""
-		while row_num < len(self.the_board):
-			column_num = 0
-			row_string = ""
-			while column_num < len(self.the_board[row_num]):
-				char = self.GetLetterOfTileInHolderAtPos((column_num, row_num))
-				if char == None:
-					char = " "
-				row_string += char
-				column_strings[column_num] += char
-				column_num += 1	
-			row_strings.append(row_string)
-			row_num += 1
-		
-		"""
-		print ("-------------------------------")
-		print (row_strings)
-		print (column_strings)
-		print ("-------------------------------")
-		"""
-		if len(self.tile_placement_locations) == 1:
-			# checking rows
-			start_pos = self.tile_placement_locations[0][0]
-			test_pos = start_pos + 1
-			scoring_position_x = []
-			char = row_strings[test_pos]
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_x.append(test_pos)
-				test_pos += 1
-			test_pos = start_pos - 1
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_x.append(test_pos)
-				test_pos -= 1
-				
-			# checking columns
-			start_pos = self.tile_placement_locations[0][1]
-			test_pos = start_pos + 1
-			scoring_position_y = []
-			char = row_strings[test_pos]
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_y.append(test_pos)
-				test_pos += 1
-			test_pos = start_pos - 1
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_y.append(test_pos)
-				test_pos -= 1
-		elif self.tile_placement_locations[0][0] = self.tile_placement_locations[1][0]:	# if the word has been placed in a row
-			pass
-		elif self.tile_placement_locations[0][1] = self.tile_placement_locations[1][1]:	# if the word has been placed in a column
-			pass
-		
-		
-		
-		
-		
-		# adding on the extra 35 points of the player manages to use up all of their tiles
-		if len(self.tile_placement_locations) == 7:
-			score += 35		
+		score = 0
 		return score
 	
 	# swaps the turns of players
@@ -299,58 +229,15 @@ class Game:
 	# this is the method called once the user presses the 'submit word' button in GameScene (i.e. once they want to confirm their play)
 	def SubmitWord(self):		
 		if self.IsWordValid():
-			#print ("hi1")
-			self.score_each_turn.append(self.CalculateWordScore())
-			self.current_player.UpdateScore(self.score_each_turn[-1])
+			self.current_player.UpdateScore(self.CalculateWordScore())
 			for location in self.tile_placement_locations:
 				self.the_board[location[1]][location[0]][2] = True
-			self.tile_placement_locations.clear()			
-			#self.NextPlayer()
-			self.AfterEachTurn()
-			#self.BeforeEachTurn()
+			self.tile_placement_locations.clear()
+			self.NextPlayer()
+			self.BeforeEachTurn()
 			return True
 		else:
-			return False	
-		
-	def AfterEachTurn(self):
-		self.CheckWinner()
-		self.NextPlayer()
-		self.DealOutLetterTiles()
-		#print (self.score_each_turn)
-		#print (self.winner)
-		
-	def PassTurn(self):
-		self.ReturnMovedTilesToRack()
-		self.score_each_turn.append(0)
-		self.AfterEachTurn()
-		#self.NextPlayer()
-		#self.BeforeEachTurn()
-		
-	def CheckWinner(self):
-		#print (self.GetRemainingTilesForCurrentPlayer())
-		current_player_rack = self.current_player.GetLetterTiles()
-		#print (current_player_rack)		
-		if (7 - current_player_rack.count(None)) == 0 and sum(self.GetRemainingTilesForCurrentPlayer().values()) <= 7:
-			score_delta = 0
-			for tile in current_player_rack:
-				if tile != None:
-					score_delta += tile[1]
-			self.current_player.UpdateScore(score_delta)
-			self.GetNextPlayer().UpdateScore(score_delta)
-			self.winner = self.current_player.GetName()
-			if self.current_player.GetScore() > self.GetNextPlayer().GetScore():
-				self.winner = self.current_player.GetName()
-			elif self.current_player.GetScore() < self.GetNextPlayer().GetScore():
-				self.winner = self.GetNextPlayer().GetName()
-			else:
-				self.winner = "No-one won"
-		elif (self.current_player.GetScore() != 0 or self.GetNextPlayer().GetScore() != 0) and len(self.score_each_turn) >= 3 and self.score_each_turn[-1] == 0 and self.score_each_turn[-2] == 0 and self.score_each_turn[-3] == 0:	# if three successive turns with no scoring have occurred, then this should also end the game
-			if self.current_player.GetScore() > self.GetNextPlayer().GetScore():
-				self.winner = self.current_player.GetName()
-			elif self.current_player.GetScore() < self.GetNextPlayer().GetScore():
-				self.winner = self.GetNextPlayer().GetName()
-			else:
-				self.winner = "No-one won"
+			return False		
 
 	# This method gives the players lettertiles
 	def DealOutLetterTiles(self, player = None):
@@ -380,14 +267,18 @@ class Game:
 	def Resign(self):
 		self.winner = self.GetNextPlayerName()
 		return self.GetWinner()	
-		
+	
+	def PassTurn(self):
+		self.ReturnMovedTilesToRack()
+		self.NextPlayer()
+		self.BeforeEachTurn()		
 	
 	def ShuffleTiles(self):		
 		self.current_player.ShuffleRack()		
 		
 	def ReturnMovedTilesToRack(self):
 		for rack_pos, tile in enumerate(self.current_player.GetLetterTiles()):
-			if tile == None and len(self.tile_placement_locations) > 0:
+			if tile == None:
 				self.MoveBoardTileToRack(self.tile_placement_locations[0], rack_pos)	
 	
 	def GetCurrentPlayerLetterTiles(self):
@@ -412,16 +303,9 @@ class Game:
 	def GetNextPlayerScore(self):
 		return self.GetNextPlayer().GetScore()	
 		
-	# an intermediate method which is called before each turn
-	#def BeforeEachTurn(self):
-	#	self.DealOutLetterTiles()	
-		
-	"""
-	def AfterEachTurn(self):
-		self.CheckWinner()
-		print (self.score_each_turn)
-		print (self.winner)
-	"""
+	# and intermediate method which is called before each turn
+	def BeforeEachTurn(self):
+		self.DealOutLetterTiles()	
 		
 	def GetLetterOfTileInHolderAtPos(self, pos):
 		if self.the_board[pos[1]][pos[0]][0] != None:

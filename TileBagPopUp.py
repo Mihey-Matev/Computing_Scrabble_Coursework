@@ -22,7 +22,7 @@ class TileBagPopUp(VO.VisualObject):
 		self.instruction_text.SetPosition((self.position[0] + 0.5 * self.width - 0.5 * self.instruction_text.GetSize()[0], self.position[1] + 0.5 * self.instruction_text.GetSize()[1]))
 		
 		characters = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ*")
-		self.tiles = [GLetterTile.GLetterTile(
+		self.tiles = {characters[n]:GLetterTile.GLetterTile(
 											colour = (210, 210, 0),
 											position = (self.position[0] + 0.5 * self.tile_width + (n % 10) * 1.5 * (self.tile_width), self.position[1] + self.tile_height * 2 + int(n / 10) * self.tile_height * 1.8),
 											width = self.tile_width, 
@@ -36,15 +36,15 @@ class TileBagPopUp(VO.VisualObject):
 											outline_size = 4,
 											point_worth = ""
 											)
-											for n in range(27)]
+											for n in range(27)}
 		
-		self.numbers_of_tiles = [TextBox.TextBox(
+		self.numbers_of_tiles = {characters[n]:TextBox.TextBox(
 												position = (self.position[0] + 0.6 * self.tile_width + (n % 10) * 1.5 * (self.tile_width), self.position[1] + self.tile_height * 3 + int(n / 10) * self.tile_height * 1.8),
-												text = "", 
+												text = "0", 
 												font_size = int(self.tile_width * 0.562), 
 												font_family = "arial", 
-												text_colour = (0, 0, 0)) 
-								 for n in range(27)]
+												text_colour = (0, 0, 0))
+								 for n in range(27)}
 		
 		self.exit_btn = Btn.Button(
 									colour = (137, 80, 27),
@@ -63,16 +63,18 @@ class TileBagPopUp(VO.VisualObject):
 		pygame.draw.rect(surface, self.picker_colour, (self.position, (self.width, self.height)), 0)
 		self.instruction_text.Draw(surface)	
 		self.exit_btn.Draw(surface)
-		for tile in self.tiles:
+		for letter, tile in self.tiles.items():
 			tile.Draw(surface)
-		for num in self.numbers_of_tiles:
+		for letter, num in self.numbers_of_tiles.items():
 			num.Draw(surface)
 	
 	# returns the letter which was clicked
 	def ProcessInput(self, events, tiles_amounts):
 		self.events = events
-		for n, tile in enumerate(self.tiles):
-			self.numbers_of_tiles[n].SetText(tiles_amounts[str(tile)])
+		for letter, amount in tiles_amounts.items():
+			self.numbers_of_tiles[letter].SetText(amount)
+		#for letter, tile in self.tiles.items():
+		#	self.numbers_of_tiles[letter].SetText(tiles_amounts[letter])
 		
 		# If the player presses on the 'x' button, then the object returns true, which can be handled appropriately (to end the event)
 		self.exit_btn.IsOver(pygame.mouse.get_pos())
@@ -82,9 +84,9 @@ class TileBagPopUp(VO.VisualObject):
 					return True	
 	
 	def SetPosition(self, position):
-		for tile in self.tiles:
+		for letter, tile in self.tiles.items():
 			tile.SetPosition((tile.GetPosition()[0] + position[0] - self.position[0], tile.GetPosition()[1] + position[1] - self.position[1]))
-		for num in self.numbers_of_tiles:
+		for letter, num in self.numbers_of_tiles.items():
 			num.SetPosition((num.GetPosition()[0] + position[0] - self.position[0], num.GetPosition()[1] + position[1] - self.position[1]))
 		self.instruction_text.SetPosition((self.instruction_text.GetPosition()[0] + position[0] - self.position[0], self.instruction_text.GetPosition()[1] + position[1] - self.position[1]))
 		self.exit_btn.SetPosition((self.exit_btn.GetPosition()[0] + position[0] - self.position[0], self.exit_btn.GetPosition()[1] + position[1] - self.position[1]))
