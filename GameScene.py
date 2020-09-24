@@ -84,12 +84,14 @@ class GameScene(Scene.Scene):
 	# both puts the tiles which have been moved this turn back onto the rack, and shuffles them
 	def ShuffleTiles(self):
 		self.ReturnMovedTilesToRack()
+		self.CancelMoves()
 		self.the_game.ShuffleTiles()
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 	
 	# the player which resigns loses, so the winning player wins, and this is reflected by changing the variable self.winner (which is checked for in ProcessInput())
 	def Resign(self):
-		self.winner = self.the_game.Resign()			
+		self.winner = self.the_game.Resign()	
+		self.AfterEachTurn()
 			
 	# this method draws a panel which announces the winner which stays active for some period of time
 	def CongratulateWinner(self):

@@ -139,20 +139,18 @@ class Game:
 			valid = True
 		else:
 			valid = False		
-		#print ("hi2", valid)
+		print ("hi2", valid)
 		# then we can check if the word is connected to a branch of the already existing words
 		if valid:
 			for pos in self.tile_placement_locations:	# check each tile which has been placed down for whether its position is valid; if one is invalid, then the word cannot be submitted.
 				if not self.IsTileConnectedToSubmittedTiles(pos):
 					valid = False
 					break		
-		#print ("hi4", valid)
+		print ("hi4", valid)
 		if valid:
 			valid = self.IsWordAWord()
-		#print ("hi3", valid)
+		print ("hi3", valid)
 		return valid		
-	
-	
 		
 		
 	# this function returns true if the tile being tested is in some way connected to previously submitted tiles; otherwise, it returns false. If the tile is not in the self.tile_placement_locations list, then it is assumed that the tile being tested is a submitted tile, which is the base case.
@@ -186,11 +184,15 @@ class Game:
 				elif row_string != "":
 					row_strings.append(row_string)
 					row_string = ""
+				if char == None:
+					column_strings.append(column_strings[column_num])
+					column_strings[column_num] = ""
 				column_num += 1		
 			if row_string != "":
 				row_strings.append(row_string)
 			row_num += 1
 			
+		
 		i = 0
 		while i < len(column_strings):
 			if column_strings[i] == "":
@@ -199,34 +201,35 @@ class Game:
 				column_strings += column_strings.pop(i).split(" ")
 			else:
 				i += 1
-		"""
+		
+		
 		print ("-------------------------------")
 		print (row_strings)
 		print (column_strings)
 		print ("-------------------------------")
-		"""
+		
 		valid = True
 		for string in row_strings:
 			if not string in self.my_dict and len(string) > 1:
 				valid = False
 				break
-		#print ("hi5", valid)
+		print ("hi5", valid)
 		if valid:
 			for string in column_strings:
 				if not string in self.my_dict and len(string) > 1:
 					valid = False
 					break
-		#print ("hi6", valid)
+		print ("hi6", valid)
 		
 		if len(row_strings) == 1 and len(column_strings) == 1 and not row_strings[0] in self.my_dict:
 			valid = False
-		#print ("hi7", valid)
+		print ("hi7", valid)
 					
 		return valid
 	
 	# calculates the number of points which the submitted word should score
 	def CalculateWordScore(self):
-		score = 1
+		score = 0
 		
 		row_strings = []
 		column_strings = [""] * len(self.the_board[0])
@@ -251,45 +254,149 @@ class Game:
 		print (column_strings)
 		print ("-------------------------------")
 		"""
+		scoring_positions_x = []
+		scoring_positions_y = []
 		if len(self.tile_placement_locations) == 1:
 			# checking rows
-			start_pos = self.tile_placement_locations[0][0]
-			test_pos = start_pos + 1
-			scoring_position_x = []
-			char = row_strings[test_pos]
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_x.append(test_pos)
-				test_pos += 1
-			test_pos = start_pos - 1
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_x.append(test_pos)
-				test_pos -= 1
+			start_pos = self.tile_placement_locations[0]
+			scoring_positions_x.append([])
+			
+			test_pos = (start_pos[0] - 1, start_pos[1])
+			#char = row_strings[test_pos]
+			while test_pos[0] >= 0 and row_strings[start_pos[1]][test_pos[0]] != " ":
+				scoring_positions_x[0].append(test_pos)
+				test_pos = (test_pos[0] - 1, test_pos[1])
+			scoring_positions_x[0] = scoring_positions_x[0][::-1]
+			scoring_positions_x[0].append(start_pos)				
+			test_pos = (start_pos[0] + 1, start_pos[1])
+			while test_pos[0] <= 14 and row_strings[start_pos[1]][test_pos[0]] != " ":
+				scoring_positions_x[0].append(test_pos)
+				test_pos = (test_pos[0] + 1, test_pos[1])
 				
-			# checking columns
-			start_pos = self.tile_placement_locations[0][1]
-			test_pos = start_pos + 1
-			scoring_position_y = []
-			char = row_strings[test_pos]
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_y.append(test_pos)
-				test_pos += 1
-			test_pos = start_pos - 1
-			while row_strings[test_pos] != " " and test_pos >= 0 and test_pos <= 14:
-				scoring_position_y.append(test_pos)
-				test_pos -= 1
-		elif self.tile_placement_locations[0][0] = self.tile_placement_locations[1][0]:	# if the word has been placed in a row
-			pass
-		elif self.tile_placement_locations[0][1] = self.tile_placement_locations[1][1]:	# if the word has been placed in a column
-			pass
+			# checking columns		
+			scoring_positions_y.append([])
+			
+			test_pos = (start_pos[0], start_pos[1] - 1)					
+			while test_pos[1] >= 0 and column_strings[start_pos[0]][test_pos[1]] != " ":
+				scoring_positions_y[0].append(test_pos)
+				test_pos = (test_pos[0], test_pos[1] - 1)
+			scoring_positions_y[0] = scoring_positions_y[0][::-1]
+			scoring_positions_y[0].append(start_pos)				
+			test_pos = (start_pos[0], start_pos[1] + 1)
+			while test_pos[1] <= 14 and column_strings[start_pos[0]][test_pos[1]] != " ":
+				scoring_positions_y[0].append(test_pos)
+				test_pos = (test_pos[0], test_pos[1] + 1)	
+		elif self.tile_placement_locations[0][1] == self.tile_placement_locations[1][1]:	# if the word has been placed in a row
+			# checking rows
+			start_pos = self.tile_placement_locations[0]
+			scoring_positions_x.append([])
+			
+			test_pos = (start_pos[0] - 1, start_pos[1])
+			while test_pos[0] >= 0 and row_strings[start_pos[1]][test_pos[0]] != " ":
+				scoring_positions_x[0].append(test_pos)
+				test_pos = (test_pos[0] - 1, test_pos[1])
+			scoring_positions_x[0] = scoring_positions_x[0][::-1]
+			scoring_positions_x[0].append(start_pos)				
+			test_pos = (start_pos[0] + 1, start_pos[1])
+			while test_pos[0] <= 14 and row_strings[start_pos[1]][test_pos[0]] != " ":
+				scoring_positions_x[0].append(test_pos)
+				test_pos = (test_pos[0] + 1, test_pos[1])
+				
+			# checking columns		
+			for n in range(len(self.tile_placement_locations)):
+				scoring_positions_y.append([])
+				start_pos = self.tile_placement_locations[n]
+				
+				test_pos = (start_pos[0], start_pos[1] - 1)					
+				while test_pos[1] >= 0 and column_strings[start_pos[0]][test_pos[1]] != " ":
+					scoring_positions_y[n].append(test_pos)
+					test_pos = (test_pos[0], test_pos[1] - 1)
+				scoring_positions_y[n] = scoring_positions_y[n][::-1]
+				scoring_positions_y[n].append(start_pos)				
+				test_pos = (start_pos[0], start_pos[1] + 1)
+				while test_pos[1] <= 14 and column_strings[start_pos[0]][test_pos[1]] != " ":
+					scoring_positions_y[n].append(test_pos)
+					test_pos = (test_pos[0], test_pos[1] + 1)
+				#print (scoring_positions_y, "hello1")
+			
+		elif self.tile_placement_locations[0][0] == self.tile_placement_locations[1][0]:	# if the word has been placed in a column
+			# checking rows
+			for n in range(len(self.tile_placement_locations)):	
+				scoring_positions_x.append([])							
+				start_pos = self.tile_placement_locations[n]
+				
+				test_pos = (start_pos[0] - 1, start_pos[1])
+				while test_pos[0] >= 0 and row_strings[start_pos[1]][test_pos[0]] != " ":
+					scoring_positions_x[n].append(test_pos)
+					test_pos = (test_pos[0] - 1, test_pos[1])
+				scoring_positions_x[n] = scoring_positions_x[n][::-1]
+				scoring_positions_x[n].append(start_pos)				
+				test_pos = (start_pos[0] + 1, start_pos[1])
+				while test_pos[0] <= 14 and row_strings[start_pos[1]][test_pos[0]] != " ":
+					scoring_positions_x[n].append(test_pos)
+					test_pos = (test_pos[0] + 1, test_pos[1])
+				
+			# checking columns	
+			start_pos = self.tile_placement_locations[0]
+			scoring_positions_y.append([])
+			
+			test_pos = (start_pos[0], start_pos[1] - 1)					
+			while test_pos[1] >= 0 and column_strings[start_pos[0]][test_pos[1]] != " ":
+				scoring_positions_y[0].append(test_pos)
+				test_pos = (test_pos[0], test_pos[1] - 1)
+			scoring_positions_y[0] = scoring_positions_y[0][::-1]
+			scoring_positions_y[0].append(start_pos)				
+			test_pos = (start_pos[0], start_pos[1] + 1)
+			while test_pos[1] <= 14 and column_strings[start_pos[0]][test_pos[1]] != " ":
+				scoring_positions_y[0].append(test_pos)
+				test_pos = (test_pos[0], test_pos[1] + 1)
+			#print (scoring_positions_y, "hello2")
+			
+		i = 0
+		print (scoring_positions_x)
+		for word_pos in scoring_positions_x:
+			if len(word_pos) > 1:				
+				print ("i1 ", i)
+				i += 1
+				score += self.FindWordScoreForLine(word_pos)
+		print ("\n----------------------------")
 		
-		
-		
+		i = 0
+		print (scoring_positions_y)
+		for word_pos in scoring_positions_y:
+			if len(word_pos) > 1:
+				print ("i2 ", i)
+				i += 1
+				score += self.FindWordScoreForLine(word_pos)
+		print ("\n----------------------------")
 		
 		
 		# adding on the extra 35 points of the player manages to use up all of their tiles
 		if len(self.tile_placement_locations) == 7:
 			score += 35		
 		return score
+		
+	def FindWordScoreForLine(self, poss):
+		current_word_score = 0
+		multiplier = 1
+		for letter_pos in poss:
+			tile_holder = self.the_board[letter_pos[1]][letter_pos[0]]
+			print (tile_holder, end="")
+			if tile_holder[1] == "DL" and not tile_holder[2]:
+				current_word_score += 2 * tile_holder[0][1]
+			elif tile_holder[1] == "TL" and not tile_holder[2]:
+				current_word_score += 3 * tile_holder[0][1]
+			elif tile_holder[1] == "DW" and not tile_holder[2]:
+				multiplier *= 2
+				current_word_score += tile_holder[0][1]
+			elif tile_holder[1] == "TW" and not tile_holder[2]:
+				multiplier *= 3
+				current_word_score += tile_holder[0][1]
+			else:
+				current_word_score += tile_holder[0][1]
+		print ("")
+		current_word_score *= multiplier
+		return current_word_score
 	
 	# swaps the turns of players
 	def NextPlayer(self):
