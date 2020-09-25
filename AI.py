@@ -4,8 +4,9 @@ import Game
 import GADDAG
 
 class AI(Player.Player):
-	def __init__(self, nickname, game, gaddag):
-		self.my_gaddag = gaddag
+	def __init__(self, nickname, game):
+		global gaddag
+		#self.my_gaddag = gaddag
 		self.board_rows = []
 		self.board_columns = []
 		self.vertical_words = []

@@ -6,8 +6,15 @@ import Player
 import AI
 import GADDAG
 
+with open(str(sys.path[0]) + "/dictionary", "r") as dict_file:
+#with open("dictionary", "r") as dict_file:
+	dictionary = dict_file.read().strip().upper().split("\n")
+#dict_file.close()
+gaddag = GADDAG.GADDAG(dictionary)
+
 class Game:
-	def __init__(self, player_names, AI_names):		
+	def __init__(self, player_names, AI_names):	
+		global	gaddag
 		self.the_tile_bag = {
 							("A", 1): 9,
 							("B", 4): 2,
@@ -37,12 +44,13 @@ class Game:
 							("Z", 10): 1,
 							("*", 0): 2
 							}
-							
-		#with open(str(sys.path[0]) + "/dictionary", "r") as dict_file:
-		with open("dictionary", "r") as dict_file:
+		"""
+		with open(str(sys.path[0]) + "/dictionary", "r") as dict_file:
+		#with open("dictionary", "r") as dict_file:
 			self.dictionary = dict_file.read().strip().upper().split("\n")
 		#dict_file.close()
 		self.my_gaddag = GADDAG.GADDAG(self.dictionary)
+		"""
 		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x, self, self.my_gaddag) for x in AI_names]
 				
 		self.current_player_num = random.randint(0, len(self.players) - 1)
@@ -191,17 +199,22 @@ class Game:
 		
 		# we check if each word in each row is a vlid word (by making sure it's in the dictionary)
 		valid = True
+		
 		for string in row_strings:
-			if len(string) > 1 and not self.my_gaddag.checkIsWord(string):# string in self.dictionary:	# if its length is one, it is not considered to be a work
+			if len(string) > 1:
+				print (string)
+			if len(string) > 1 and not gaddag.checkIsWord(string[0] + "@" + string[1:]):# string in self.dictionary:	# if its length is one, it is not considered to be a work
 				valid = False
 				break
 		if valid:	# if the words in the rows are valid, we check if each word in each column is a vlid word (by making sure it's in the dictionary)
 			for string in column_strings:
-				if len(string) > 1 and not self.my_gaddag.checkIsWord(string):#string in self.dictionary:
+				if len(string) > 1:
+					print (string)
+				if len(string) > 1 and not gaddag.checkIsWord(string[0] + "@" + string[1:]):#string in self.dictionary:
 					valid = False
 					break
 		
-		if len(row_strings) == 1 and len(column_strings) == 1 and not self.my_gaddag.checkIsWord(row_strings[0]):#row_strings[0] in self.dictionary:	# if the player has submitted a single letter as a word and it isn't in the dictionary as a word, then it is invalid (this check has to be done as the above checks ignore the case of a string which is one long)
+		if len(row_strings) == 1 and len(column_strings) == 1 and not gaddag.checkIsWord(row_strings[0]):#row_strings[0] in self.dictionary:	# if the player has submitted a single letter as a word and it isn't in the dictionary as a word, then it is invalid (this check has to be done as the above checks ignore the case of a string which is one long)
 			valid = False
 					
 		return valid
