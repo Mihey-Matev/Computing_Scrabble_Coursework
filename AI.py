@@ -154,8 +154,14 @@ class AI(Player.Player):
 									poss_list.pop(-1)
 								self.in_game.MoveBoardTileToRack((x, y_new), rack_pos)
 								
-						if not h_tried and tiles_placed == 1 and self.gaddag.checkIsWord(word):
-							self.HookH(x = x, y = y, poss_list = poss_list, v_tried = True)
+						if not h_tried and len(poss_list) == 1 and self.gaddag.checkIsWord(word):
+							x_h = poss_list[0][1][0]
+							while x_h < 14 and self.in_game.GetLetterOfTileInHolderAtPos((x_h + 1, y)) != None:
+								x_h += 1
+							#print (poss_list, x_h, y)
+							self.HookH(x = x_h, y = y, poss_list = poss_list, v_tried = True)
+							poss_list = [poss_list[0]]
+							#print ("after call", poss_list)
 
 			if not forward and start_pos[1] < 14 and next_letter == None:
 				forward = True
@@ -222,8 +228,14 @@ class AI(Player.Player):
 									poss_list.pop(-1)
 								self.in_game.MoveBoardTileToRack((x_new, y), rack_pos)
 						
-						if not v_tried and tiles_placed == 1 and self.gaddag.checkIsWord(word):
-							self.HookV(x = x, y = y, poss_list = poss_list, h_tried = True)
+						if not v_tried and len(poss_list) == 1 and self.gaddag.checkIsWord(word):
+							y_v = poss_list[0][1][1]
+							while y_v < 14 and self.in_game.GetLetterOfTileInHolderAtPos((x, y_v + 1)) != None:
+								y_v += 1
+							#print (poss_list, x, y_v)
+							self.HookV(x = x, y = y_v, poss_list = poss_list, h_tried = True)
+							poss_list = [poss_list[0]]
+							#print ("after call", poss_list)
 							
 								
 			if (not forward) and start_pos[0] < 14 and next_letter == None:
@@ -236,6 +248,7 @@ class AI(Player.Player):
 	
 	def PlaceLetters(self, pos_struct_tuple):
 		for pos_pair in pos_struct_tuple[0]:
+			print (pos_pair)
 			if len(pos_pair) == 2:
 				self.in_game.MoveRackTileToBoard(pos_pair[0], pos_pair[1])
 			elif len(pos_pair) == 3:
@@ -252,6 +265,15 @@ class AI(Player.Player):
 		if best_word != None:
 			self.PlaceLetters(best_word)
 			self.best_words.clear()
+			"""
+			for n in self.in_game.the_board:
+				for m in n:
+					if m[0] == None:
+						print ("WPLACEHW", end = " ")
+					else:
+						print (m[0], end = " ")
+				print ("\n")
+			"""
 			self.in_game.SubmitWord()
 		else:
 			self.in_game.PassTurn()	

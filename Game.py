@@ -86,6 +86,18 @@ class Game:
 		
 	# Moves a tile from a given position in the player's rack to a given position on the board
 	def MoveRackTileToBoard(self, from_pos, to_pos, wild_card_letter = None):	# a wild card lettertile is one which can be any letter; this is the reason for the last parameter
+		"""
+		if self.the_board[to_pos[1]][to_pos[0]][2]:		# making sure that this tile has not been locked in
+			print ("problem1:", from_pos, to_pos)
+			for n in self.the_board:
+				for m in n:
+					if m[0] == None:
+						print ("WPLACEHW", end = " ")
+					else:
+						print (m[0], end = " ")
+				print ("\n")
+			raise
+		"""
 		if self.current_player.GetLetterTileAtPosition(from_pos)[1] != 0:		# We can check if the tile is a wildcard by checking its score; if it's zero, it's a wildcard.
 			self.the_board[to_pos[1]][to_pos[0]][0] = self.current_player.GetLetterTileAtPosition(from_pos)	# If not a wildcard, we can just move it.
 		else:		# If it is a wildcard, then we need to also change its letter as we move it to whatever was passed in as wild_card_letter
@@ -102,6 +114,18 @@ class Game:
 	# Allows the player to move a tile around on the board (instead of having to put it back on their rack first)
 	# for explanation on how the wildcard is dealt with, see above; the only difference is that this time we are just inspetcing the tile on the board instead of the tile in the player's rack
 	def MoveBoardTileToBoardPos(self, from_pos, to_pos, wild_card_letter = None):	# a wild card lettertile is one which can be any letter; this is the reason for the last parameter
+		"""
+		if self.the_board[from_pos[1]][from_pos[0]][2]:		# making sure that this tile has not been locked in
+			print ("problem2:", from_pos, to_pos)
+			for n in self.the_board:
+				for m in n:
+					if m[0] == None:
+						print ("WPLACEHW", end = " ")
+					else:
+						print (m[0], end = " ")
+				print ("\n")
+			raise
+		"""
 		self.tile_placement_locations[self.tile_placement_locations.index(from_pos)] = to_pos
 		if self.the_board[from_pos[1]][from_pos[0]][0][1] != 0:
 			self.the_board[to_pos[1]][to_pos[0]][0] = self.the_board[from_pos[1]][from_pos[0]][0]
@@ -111,13 +135,24 @@ class Game:
 	
 	# allows the player to move a tile from the board back onto their rack	
 	def MoveBoardTileToRack(self, from_pos, to_pos):
+		"""
+		if self.the_board[from_pos[1]][from_pos[0]][2]:		# making sure that this tile has not been locked in
+			print ("problem3:", from_pos, to_pos)
+			for n in self.the_board:
+				for m in n:
+					if m[0] == None:
+						print ("WPLACEHW", end = " ")
+					else:
+						print (m[0], end = " ")
+				print ("\n")
+			raise
+		"""
 		if self.the_board[from_pos[1]][from_pos[0]][0][1] != 0:		# Similar checking for wildcard as above
 			self.current_player.SetRackLetterTile(to_pos, self.the_board[from_pos[1]][from_pos[0]][0])
 		else:
 			self.current_player.SetRackLetterTile(to_pos, ("*", 0))		# if the tile which was on the board was a wildcard, then it is returned to their rack as if it was not affected by the letter cahnge
 		self.tile_placement_locations.pop(self.tile_placement_locations.index(from_pos))
-		self.the_board[from_pos[1]][from_pos[0]][0] = None			
-		#print (self.tile_placement_locations)
+		self.the_board[from_pos[1]][from_pos[0]][0] = None	
 		
 	# checks if the word which has just been submitted on the board is valid
 	def IsWordValid(self):
