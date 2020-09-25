@@ -2,8 +2,7 @@ import random
 import pygame
 		
 class Player:
-	def __init__(self, nickname, game):
-		
+	def __init__(self, nickname, game):		
 		self.nickname = nickname
 		self.SetScore(0)
 		self.in_game = game

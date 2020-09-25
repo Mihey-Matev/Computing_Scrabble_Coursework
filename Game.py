@@ -14,7 +14,8 @@ gaddag = GADDAG.GADDAG(dictionary)
 
 class Game:
 	def __init__(self, player_names, AI_names):	
-		global	gaddag
+		global gaddag
+		self.gaddag = gaddag
 		self.the_tile_bag = {
 							("A", 1): 9,
 							("B", 4): 2,
@@ -51,7 +52,7 @@ class Game:
 		#dict_file.close()
 		self.my_gaddag = GADDAG.GADDAG(self.dictionary)
 		"""
-		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x, self) for x in AI_names]
+		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x, self, self.gaddag) for x in AI_names]
 				
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		self.current_player = self.players[self.current_player_num]
@@ -90,6 +91,7 @@ class Game:
 			self.the_board[to_pos[1]][to_pos[0]][0] = (wild_card_letter, 0)
 		self.current_player.SetRackLetterTile(from_pos, None)	# We make sure to remove the tile which was moved from the player's rack, so we don't have any extra copies of tiles
 		self.tile_placement_locations.append(to_pos)	
+		#print (self.tile_placement_locations)
 	
 	# This allows the player to move their tiles around their rack
 	def MoveRackTileToRackPos(self, from_pos, to_pos):
@@ -114,6 +116,7 @@ class Game:
 			self.current_player.SetRackLetterTile(to_pos, ("*", 0))		# if the tile which was on the board was a wildcard, then it is returned to their rack as if it was not affected by the letter cahnge
 		self.tile_placement_locations.pop(self.tile_placement_locations.index(from_pos))
 		self.the_board[from_pos[1]][from_pos[0]][0] = None			
+		#print (self.tile_placement_locations)
 		
 	# checks if the word which has just been submitted on the board is valid
 	def IsWordValid(self):
