@@ -37,7 +37,7 @@ class Node:
 			self.arcLetters[connectToNode.getNodeLetter()] = connectToNode				
 
 			
-class Gaddag:	
+class GADDAG:	
 	def __init__(self, elements):
 		self.startNode = Node("*")		# this is just treated as the starting point; the root node		
 		for word in elements:			# adds each word into the structure
@@ -53,7 +53,15 @@ class Gaddag:
 			else:
 				return currentNode				# returns the node
 		except:		# if no such node exists in the structure, this means that the word we searched for is not entered in the GADDAG structure, and is therefore definitely not a valid word
-			return None			
+			return None		
+
+	
+	def checkIsWord(self, word):
+		wordNode = self.navigateToNode(word)
+		if wordNode != None:
+			return wordNode.isWord()
+		else:
+			return False	
 
 	def findNodes(self, wordA, currentWord = "", currentNode = None):
 		if currentNode == None:
