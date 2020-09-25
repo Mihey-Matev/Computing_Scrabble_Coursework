@@ -118,9 +118,6 @@ class GameScene(Scene.Scene):
 		if self.winner != None:
 			return True
 		
-		if self.current_player != self.the_game.GetCurrentPlayer():
-			self.AfterEachTurn()
-		
 		self.events = events		
 		# dealing with buttons which are events which can happen in a scrabble game.
 		if not self.game_scene_btns in self.uninteractive_VOs:		# each time there is a check such as this, it is to make sure that the visual object has not been disabled, as if it has, then we shouldn't be abble to interact with it.
@@ -347,13 +344,13 @@ class GameScene(Scene.Scene):
 										outline_size = 4,
 										point_worth = self.the_game.GetTileAtPos(x, y)[1])
 										)	
-		#self.AfterEachTurn()
+		self.AfterEachTurn()
 			
 				
 	def PassTurn(self):			
 		self.ReturnMovedTilesToRack()	
 		self.the_game.PassTurn()
-		#self.AfterEachTurn()
+		self.AfterEachTurn()
 	
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
 	def AfterEachTurn(self):
