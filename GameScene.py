@@ -65,6 +65,7 @@ class GameScene(Scene.Scene):
 		self.board_selection = None		
 		self.deactivated_tile = None
 		
+		self.current_player = self.the_game.GetCurrentPlayer()
 		self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())
 		self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
 		self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())
@@ -80,11 +81,12 @@ class GameScene(Scene.Scene):
 		self.tile_placement_locations.clear()
 		self.the_game.ReturnMovedTilesToRack()
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
+		self.CancelMoves()
 	
 	# both puts the tiles which have been moved this turn back onto the rack, and shuffles them
 	def ShuffleTiles(self):
 		self.ReturnMovedTilesToRack()
-		self.CancelMoves()
+		#self.CancelMoves()
 		self.the_game.ShuffleTiles()
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 	
@@ -115,6 +117,9 @@ class GameScene(Scene.Scene):
 	def ProcessInput(self, events):
 		if self.winner != None:
 			return True
+		
+		if self.current_player != self.the_game.GetCurrentPlayer():
+			self.AfterEachTurn()
 		
 		self.events = events		
 		# dealing with buttons which are events which can happen in a scrabble game.
@@ -275,7 +280,7 @@ class GameScene(Scene.Scene):
 	
 	def SwapTiles(self):
 		self.ReturnMovedTilesToRack()
-		self.CancelMoves()
+		#self.CancelMoves()
 		list_of_tiles_to_swap = []		# holds the numbers of the position of tiles in the rack which need to be swapped
 		list_of_crosses_for_tiles = []	# a list containing the visual crosses which show the user which tiles they want to swap
 		
@@ -342,25 +347,37 @@ class GameScene(Scene.Scene):
 										outline_size = 4,
 										point_worth = self.the_game.GetTileAtPos(x, y)[1])
 										)	
-		self.AfterEachTurn()
+		#self.AfterEachTurn()
 			
 				
 	def PassTurn(self):			
 		self.ReturnMovedTilesToRack()	
 		self.the_game.PassTurn()
-		self.AfterEachTurn()
+		#self.AfterEachTurn()
 	
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
 	def AfterEachTurn(self):
+		print ("hi1")
 		self.winner = self.the_game.GetWinner()	# check if there is a winner
 		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
 			self.CongratulateWinner()
 			return True
 		else:
+			print ("hi2")
+			#self.CancelMoves()
+			#self.tile_placement_locations.clear()
+			#self.the_game.ReturnMovedTilesToRack()
+			#self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
+			self.CancelMoves()
+			#self.ReturnMovedTilesToRack()
+			#self.tile_placement_locations.clear()
+			#self.the_game.ReturnMovedTilesToRack()
+			#self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
 			self.the_rack.CoverRack()
 			self.Draw()			
 			pygame.display.update()	
-			self.tile_placement_locations.clear()		
+			self.tile_placement_locations.clear()	
+			self.current_player = self.the_game.GetCurrentPlayer()
 			self.player_box_name_1.SetText(self.the_game.GetCurrentPlayerName())		# swap the names and scores of the two players (in these four lines)
 			self.player_box_scorenum_1.SetText(self.the_game.GetCurrentPlayerScore())
 			self.player_box_name_2.SetText(self.the_game.GetNextPlayerName())

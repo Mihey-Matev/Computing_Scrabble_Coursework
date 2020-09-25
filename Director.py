@@ -43,7 +43,9 @@ class Director: # This class is basically the class which links everything toget
 				number_of_AIs = 0
 				# each number plays a different game: 1 - VS AI, 2 - Vs Plater, 3 - Online, and 4 is exit game.
 				if game_option == 1:
-					raise NotImplementedError("Section of game not implemented yet")
+					number_of_players = 1
+					number_of_AIs = 1
+					#raise NotImplementedError("Section of game not implemented yet")
 				elif game_option == 2:
 					number_of_players = 2
 				elif game_option == 3:

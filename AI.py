@@ -4,9 +4,9 @@ import Game
 import GADDAG
 
 class AI(Player.Player):
-	def __init__(self, nickname):
-		super().__init__(nickname)
-		my_gaddag = final_gaddag_v6.Gaddag(["AND", "THE", "RAT", "CAN", "EAT", "MAN", "SET", "MET", "BET", "CAT", "CAR", "CATS"])
+	def __init__(self, nickname, game):
+		super().__init__(nickname, game)
+		my_gaddag = GADDAG.Gaddag(["AND", "THE", "RAT", "CAN", "EAT", "MAN", "SET", "MET", "BET", "CAT", "CAR", "CATS"])
 		
 		
 	def findBestWord(self, board):
@@ -17,6 +17,9 @@ class AI(Player.Player):
 			for x, board_tile in enumerate(row):
 				if board_tile[1] != None:
 					pass
+				
+	def MakePlay(self):
+		self.in_game.PassTurn()
 	
 	
 

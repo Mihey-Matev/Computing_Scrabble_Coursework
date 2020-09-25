@@ -8,7 +8,7 @@ import GADDAG
 
 class Game:
 	def __init__(self, player_names, AI_names):
-		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x) for x in AI_names]
+		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x, self) for x in AI_names]
 		self.the_tile_bag = {
 							("A", 1): 9,
 							("B", 4): 2,
@@ -69,7 +69,8 @@ class Game:
 		self.tile_placement_locations = []		# helps out in checking if the word submitted is valid and putting all tiles back onto the player's rack if they wish
 		self.winner = None
 		self.score_each_turn = []	# helps in checking if the last three turns no moves have been made
-		self.DealOutLetterTiles()
+		self.AfterEachTurn()
+		#self.DealOutLetterTiles()
 		
 	# Moves a tile from a given position in the player's rack to a given position on the board
 	def MoveRackTileToBoard(self, from_pos, to_pos, wild_card_letter = None):	# a wild card lettertile is one which can be any letter; this is the reason for the last parameter
@@ -386,6 +387,8 @@ class Game:
 		self.CheckWinner()
 		self.NextPlayer()
 		self.DealOutLetterTiles()
+		if isinstance(self.current_player, AI.AI):
+			self.current_player.MakePlay()
 		
 	def PassTurn(self):
 		self.ReturnMovedTilesToRack()
@@ -393,7 +396,7 @@ class Game:
 		self.AfterEachTurn()
 		
 	def CheckWinner(self):
-		current_player_rack = self.current_player.GetLetterTiles()	
+		current_player_rack = self.current_player.GetLetterTiles()
 		if (7 - current_player_rack.count(None)) == 0 and sum(self.GetRemainingTilesForCurrentPlayer().values()) <= 7:	# If the current player has just used up all of their tiles, this means that the game should end
 			score_delta = 0
 			for tile in current_player_rack:
@@ -457,6 +460,9 @@ class Game:
 	
 	def GetCurrentPlayerLetterTiles(self):
 		return self.current_player.GetLetterTiles()	
+	
+	def GetCurrentPlayer(self):
+		return self.current_player
 			
 	def GetCurrentPlayerName(self):
 		return self.current_player.GetName()	
