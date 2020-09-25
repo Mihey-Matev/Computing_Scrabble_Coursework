@@ -24,17 +24,18 @@ class Node:
 		return self.nodeLetter
 		
 	# adds an arc from the current node to the next node to form the word 'wordA', and recursively repeats for the next word until the end of the word has been reached
-	def addArc(self, wordA, connectToNode = None):
+	def addArc(self, wordA):#, connectToNode = None):
 		if len(wordA) > 0:
 			self.hasArcs = True			
 			try:
 				self.arcLetters[wordA[0]].addArc(wordA[1:])		# If a path exists, uses self.startNode.addArc(reverseWord)that;
 			except:				
 				self.arcLetters[wordA[0]] = Node(wordA) 	# otherwise, creates a new path.
-		elif connectToNode == None:
+		#elif connectToNode == None:
+		else:
 			self.canTerminate = True
-		else:												# allows for non-linear connections to be made
-			self.arcLetters[connectToNode.getNodeLetter()] = connectToNode				
+		#else:												# allows for non-linear connections to be made
+		#	self.arcLetters[connectToNode.getNodeLetter()] = connectToNode				
 
 			
 class GADDAG:	
@@ -100,7 +101,27 @@ class GADDAG:
 			for n in range(len(word) - 2):
 				aNode = self.navigateToNode(word[n + 2], aNode)
 				nodesAfterThird.append(aNode)
-		for n in range(len(word) - 2):			
+		for n in range(len(word) - 2):
+			n += 1
+			subWordToAdd = word[n::-1] + "@"			
+			self.startNode.addArc(subWordToAdd)
+			self.navigateToNode(subWordToAdd).canTerminate = False
+			self.navigateToNode(subWordToAdd).arcLetters[nodesAfterThird[n - 1].getNodeLetter()] = nodesAfterThird[n - 1]
+			#print (subWordToAdd)
+			"""
 			n += 1
 			subWordToAdd = word[n::-1] + "@"
 			self.startNode.addArc(subWordToAdd, nodesAfterThird[n - 1])
+			"""
+
+"""			
+new_dag = GADDAG(["explode", "cats"])
+print (new_dag.checkIsWord("lpxe@ode"))
+print (new_dag.checkIsWord("pxe@lode"))
+print (new_dag.checkIsWord("explode"[::-1]))
+print (new_dag.checkIsWord("e@xplode"))
+print ("")
+print (new_dag.checkIsWord("c@atat@"))
+print (new_dag.checkIsWord("c@a"))
+print (new_dag.checkIsWord("explode"))
+"""		

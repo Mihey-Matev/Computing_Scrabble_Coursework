@@ -1,5 +1,5 @@
 import pygame
-import AI
+#import AI
 import SwapTilesPopUp
 import Player
 import Button as Btn

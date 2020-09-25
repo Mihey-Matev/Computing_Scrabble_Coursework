@@ -6,7 +6,8 @@ import Player
 import AI
 import GADDAG
 
-with open(str(sys.path[0]) + "/dictionary", "r") as dict_file:
+#with open(str(sys.path[0]) + "/dictionary", "r") as dict_file:
+with open("dictionary", "r") as dict_file:	
 #with open("dictionary", "r") as dict_file:
 	dictionary = dict_file.read().strip().upper().split("\n")
 #dict_file.close()
@@ -85,8 +86,8 @@ class Game:
 		
 	# Moves a tile from a given position in the player's rack to a given position on the board
 	def MoveRackTileToBoard(self, from_pos, to_pos, wild_card_letter = None):	# a wild card lettertile is one which can be any letter; this is the reason for the last parameter
-		if self.current_player.GetLetterTiles()[from_pos][1] != 0:		# We can check if the tile is a wildcard by checking its score; if it's zero, it's a wildcard.
-			self.the_board[to_pos[1]][to_pos[0]][0] = self.current_player.GetLetterTiles()[from_pos]	# If not a wildcard, we can just move it.
+		if self.current_player.GetLetterTileAtPosition(from_pos)[1] != 0:		# We can check if the tile is a wildcard by checking its score; if it's zero, it's a wildcard.
+			self.the_board[to_pos[1]][to_pos[0]][0] = self.current_player.GetLetterTileAtPosition(from_pos)	# If not a wildcard, we can just move it.
 		else:		# If it is a wildcard, then we need to also change its letter as we move it to whatever was passed in as wild_card_letter
 			self.the_board[to_pos[1]][to_pos[0]][0] = (wild_card_letter, 0)
 		self.current_player.SetRackLetterTile(from_pos, None)	# We make sure to remove the tile which was moved from the player's rack, so we don't have any extra copies of tiles
@@ -95,7 +96,7 @@ class Game:
 	
 	# This allows the player to move their tiles around their rack
 	def MoveRackTileToRackPos(self, from_pos, to_pos):
-		self.current_player.SetRackLetterTile(to_pos, self.current_player.GetLetterTiles()[from_pos])
+		self.current_player.SetRackLetterTile(to_pos, self.current_player.GetLetterTileAtPosition(from_pos))
 		self.current_player.SetRackLetterTile(from_pos, None)
 	
 	# Allows the player to move a tile around on the board (instead of having to put it back on their rack first)
@@ -204,15 +205,15 @@ class Game:
 		valid = True
 		
 		for string in row_strings:
-			if len(string) > 1:
-				print (string)
+			#if len(string) > 1:
+			#	print (string)
 			if len(string) > 1 and not gaddag.checkIsWord(string[0] + "@" + string[1:]):# string in self.dictionary:	# if its length is one, it is not considered to be a work
 				valid = False
 				break
 		if valid:	# if the words in the rows are valid, we check if each word in each column is a vlid word (by making sure it's in the dictionary)
 			for string in column_strings:
-				if len(string) > 1:
-					print (string)
+				#if len(string) > 1:
+				#	print (string)
 				if len(string) > 1 and not gaddag.checkIsWord(string[0] + "@" + string[1:]):#string in self.dictionary:
 					valid = False
 					break

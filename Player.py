@@ -19,6 +19,7 @@ class Player:
 	
 	def PopulateRack(self, letters):
 		m = 0
+		#self.rack = [("*", 0), ("*", 0), ("Z", 1), ("Z", 1), ("Z", 1), ("Z", 1), ("Z", 1)]
 		for n in range(len(self.rack)):
 			if self.rack[n] == None and m < len(letters):
 				self.rack[n] = letters[m]
