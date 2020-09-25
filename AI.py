@@ -1,7 +1,7 @@
 import pygame
 import Player
 import Game	
-import final_gaddag_v6
+import GADDAG
 
 class AI(Player.Player):
 	def __init__(self, nickname):

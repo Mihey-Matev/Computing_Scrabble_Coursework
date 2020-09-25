@@ -25,34 +25,35 @@ class GameScene(Scene.Scene):
 		s_height = pygame.display.get_surface().get_size()[1]		
 		board_height = s_height * 0.8
 		board_width = board_height
-		board_position = (width - s_height * 0.07 - board_width - width * 0.17, s_height * 0.07)
-		self.the_board = self.AddVONonBtn(Board.Board(horizontal_tile_num = 15, vertical_tile_num = 15, buffer_around_board = 10, tile_spacing = 4, width = board_width, height = board_height, position = board_position), board_position)
+		self.board_position = (width - s_height * 0.07 - board_width - width * 0.17, s_height * 0.07)
+		self.the_board = self.AddVONonBtn(Board.Board(horizontal_tile_num = 15, vertical_tile_num = 15, buffer_around_board = 10, tile_spacing = 4, width = board_width, height = board_height, position = self.board_position), self.board_position)
 		
 		# Rack calculations and instantiation
 		self.tile_size = self.the_board.GetTileSize()
-		self.the_rack = self.AddVONonBtn(Rack.Rack(tile_width = self.tile_size[0], tile_height = self.tile_size[1]), (0.25 * self.width, board_position[1] + 0.5 * board_height - 5 * self.tile_size[1]))
+		self.the_rack = self.AddVONonBtn(Rack.Rack(tile_width = self.tile_size[0], tile_height = self.tile_size[1]), (0.25 * self.width, self.board_position[1] + 0.5 * board_height - 5 * self.tile_size[1]))
 		
 		# Creation of the other buttons for this scene
 		self.submit_btn = Btn.Button(colour = (161,111,80), position = (0, 0), width = self.width/7, height = 3 * self.tile_size[1] / 2, outline_colour = (109, 67, 19), text = "Submit Word", text_size = 30, text_colour = (0, 0, 0), fade_value = 20)
-		self.AddButton(position = (board_position[0] + 0.5 * (board_width - self.submit_btn.GetSize()[0]), 1.25 * self.submit_btn.GetSize()[1] + board_height), button = self.submit_btn)
+		self.AddButton(position = (self.board_position[0] + 0.5 * (board_width - self.submit_btn.GetSize()[0]), 1.25 * self.submit_btn.GetSize()[1] + board_height), button = self.submit_btn)
 		
 		button_width = self.width / 10.971428571
 		button_height = self.height / 17.28
 		self.game_scene_btns = GSBtns.GameSceneButtons(button_width = button_width, button_height = button_height)
-		self.AddVONonBtn(self.game_scene_btns, (self.the_rack.GetPosition()[0] - 1.6 * self.game_scene_btns.GetSize()[0], board_position[1] + 0.5 * board_height - 3.5 * button_height))
+		self.AddVONonBtn(self.game_scene_btns, (self.the_rack.GetPosition()[0] - 1.6 * self.game_scene_btns.GetSize()[0], self.board_position[1] + 0.5 * board_height - 3.5 * button_height))
 		
 		
 		# Creation of text boxes with player names and scores
-		self.player_box_name_1 = self.AddVONonBtn(TextBox.TextBox(position = (self.game_scene_btns.GetPosition()[0] + 0.4 * button_width, board_position[1] + 0.5 * self.tile_size[0]), text = "WWWWWWWWWWWW", font_size = round(0.6 * self.tile_size[0])))
+		self.player_box_name_1 = self.AddVONonBtn(TextBox.TextBox(position = (self.game_scene_btns.GetPosition()[0] + 0.4 * button_width, self.board_position[1] + 0.5 * self.tile_size[0]), text = "WWWWWWWWWWWW", font_size = round(0.6 * self.tile_size[0])))
+		self.current_player_info = self.AddVONonBtn(TextBox.TextBox(position = (self.game_scene_btns.GetPosition()[0] + 0.4 * button_width, self.player_box_name_1.GetPosition()[1] - 1.2 * self.player_box_name_1.GetSize()[1]), text = "Current Player:", font_size = round(0.6 * self.tile_size[0])))
 		self.player_box_scoretext_1 = self.AddVONonBtn(TextBox.TextBox(position = (self.player_box_name_1.GetPosition()[0], self.player_box_name_1.GetPosition()[1] + 1.2 * self.player_box_name_1.GetSize()[1]), text = "Score: ", font_size = round(0.6 * self.tile_size[0])))
 		self.player_box_scorenum_1 = self.AddVONonBtn(TextBox.TextBox(position = (self.player_box_scoretext_1.GetPosition()[0] + self.player_box_scoretext_1.GetSize()[0], self.player_box_scoretext_1.GetPosition()[1]), text = 888, font_size = round(0.6 * self.tile_size[0])))
 		
-		self.player_box_name_2 = self.AddVONonBtn(TextBox.TextBox(position = (board_position[0] + board_width + 0.5 * self.tile_size[0], board_position[1] + 0.5 * self.tile_size[0]), text = "WWWWWWWWWWWW", font_size = round(0.6 * self.tile_size[0])))
+		self.player_box_name_2 = self.AddVONonBtn(TextBox.TextBox(position = (self.board_position[0] + board_width + 0.5 * self.tile_size[0], self.board_position[1] + 0.5 * self.tile_size[0]), text = "WWWWWWWWWWWW", font_size = round(0.6 * self.tile_size[0])))
 		self.player_box_scoretext_2 = self.AddVONonBtn(TextBox.TextBox(position = (self.player_box_name_2.GetPosition()[0], self.player_box_name_2.GetPosition()[1] + 1.2 * self.player_box_name_2.GetSize()[1]), text = "Score: ", font_size = round(0.6 * self.tile_size[0])))
 		self.player_box_scorenum_2 = self.AddVONonBtn(TextBox.TextBox(position = (self.player_box_scoretext_2.GetPosition()[0] + self.player_box_scoretext_2.GetSize()[0], self.player_box_scoretext_2.GetPosition()[1]), text = 888, font_size = round(0.6 * self.tile_size[0])))
 		
 		# panels for special events (such as choosing the letter of a wildcard tile, swapping tiles, showing remaining tiles)
-		self.swap_tiles = self.AddVONonBtn(SwapTilesPopUp.SwapTilesPopUp(width = self.width/7, height = self.tile_size[1] * 10, position = (0.25 * self.width + self.tile_size[0] * 2, board_position[1] + 0.5 * board_height - 5 * self.tile_size[1])), (0.25 * self.width + self.tile_size[0] * 2, board_position[1] + 0.5 * board_height - 5 * self.tile_size[1]), True, False)
+		self.swap_tiles = self.AddVONonBtn(SwapTilesPopUp.SwapTilesPopUp(width = self.width/7, height = self.tile_size[1] * 10, position = (0.25 * self.width + self.tile_size[0] * 2, self.board_position[1] + 0.5 * board_height - 5 * self.tile_size[1])), (0.25 * self.width + self.tile_size[0] * 2, self.board_position[1] + 0.5 * board_height - 5 * self.tile_size[1]), True, False)
 		self.show_tilebag = self.AddVONonBtn(TileBagPopUp.TileBagPopUp(width = self.tile_size[0] * 15.5, height = self.tile_size[0] * 8, tile_width = self.tile_size[1], tile_height = self.tile_size[1], position = (self.width * 0.35 , self.height * 0.5 - 3.5 * self.tile_size[0])), (self.width * 0.35 , self.height * 0.5 - 3.5 * self.tile_size[0]), True, False)
 		self.choose_wildcard_interface = self.AddVONonBtn(WildcardPicker.WildcardPicker(width = self.tile_size[0] * 16, height = self.tile_size[0] * 7, tile_width = self.tile_size[1], tile_height = self.tile_size[1], position = (self.width * 0.35 , self.height * 0.5 - 3.5 * self.tile_size[0])), (self.width * 0.35 , self.height * 0.5 - 3.5 * self.tile_size[0]), True, False)
 		
@@ -133,9 +134,18 @@ class GameScene(Scene.Scene):
 		# Dealing with buttons that belong to the scene explicitly (i.e. only the Submit Word button). If it was clicked, then we firstly check if the logical game agrees with the input, and if it does, we go through with the events for a valid word submission.
 		btn_clicked = self.ButtonClicked()
 		if btn_clicked == self.submit_btn:
-			if self.the_game.SubmitWord():
+			validity = self.the_game.SubmitWord()
+			if validity:
 				self.SubmitWord()
-			
+			elif validity == False:	# display a message that word is invalid; as validity can be None, we have to make sure it's false and not None before doing this
+				temp_rect = pygame.Rect(self.board_position, (self.width * 0.14, self.height * 0.1))
+				pygame.draw.rect(self.surface, (217, 160, 107), (temp_rect.x, temp_rect.y, temp_rect.width, temp_rect.height), 0)
+				TextBox.TextBox(position = (temp_rect.x, temp_rect.y + 0.005 * self.height), text = "Invalid word;", font_size = int(temp_rect.height * 0.33), font_family = "arial", text_colour = (0, 0, 0)).Draw(self.surface)
+				TextBox.TextBox(position = (temp_rect.x, temp_rect.bottom - 0.5 * temp_rect.height - 0.005 * self.height), text = "Please try again.", font_size = int(temp_rect.height * 0.33), font_family = "arial", text_colour = (0, 0, 0)).Draw(self.surface)
+				pygame.display.get_surface().blit(self.surface, (0, 0))
+				pygame.display.update()
+				pygame.time.wait(1000)	
+
 		self.rack_tileholder_clicked_last = None
 		
 		# getting the tile which was clicked on the rack

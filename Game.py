@@ -4,7 +4,7 @@ import sys
 import random
 import Player
 import AI
-import final_gaddag_v6
+import GADDAG
 
 class Game:
 	def __init__(self, player_names, AI_names):
