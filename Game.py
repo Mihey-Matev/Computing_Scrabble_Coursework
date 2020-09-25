@@ -51,7 +51,7 @@ class Game:
 		#dict_file.close()
 		self.my_gaddag = GADDAG.GADDAG(self.dictionary)
 		"""
-		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x, self, self.my_gaddag) for x in AI_names]
+		self.players = [Player.Player(x, self) for x in player_names] + [AI.AI(x, self) for x in AI_names]
 				
 		self.current_player_num = random.randint(0, len(self.players) - 1)
 		self.current_player = self.players[self.current_player_num]
