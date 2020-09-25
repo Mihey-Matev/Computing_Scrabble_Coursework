@@ -7,8 +7,8 @@ class AI(Player.Player):
 	def __init__(self, nickname, game, gaddag):
 		self.gaddag = gaddag
 		super(AI, self).__init__(nickname, game)
-		
-		
+		self.board_rows = []
+		self.board_columns = []
 		self.best_words = []
 		self.alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	
@@ -105,14 +105,16 @@ class AI(Player.Player):
 		if start_pos == None:
 			start_pos = (x, y)
 			
-			
-		letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
-		word += letter			
-			
-		if tile_placed and self.gaddag.checkIsWord(word) and len(word) >= 1 and word[-1] != "@" and ((forward and y == 14) or (forward and y < 14 and self.in_game.GetLetterOfTileInHolderAtPos((x, y + 1)) == None) or (not forward and y == 0) or (not forward and y > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x, y - 1)) == None)):
+		try:
+			letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
+			word += letter
+		except:
+			print (x, y, word, letter)
+		#print ("V", word)
+		if tile_placed and self.gaddag.checkIsWord(word) and len(word) >= 0 and word[-1] != "@" and ((forward and y == 14) or (forward and y < 14 and self.in_game.GetLetterOfTileInHolderAtPos((x, y + 1)) == None) or (not forward and y == 0) or (not forward and y > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x, y - 1)) == None)):
+			#print ("Vsubmit", word)
 			score = self.in_game.CalculateWordScore()
 			self.best_words.append((tuple(poss_list), score))
-			
 		if y > 0 and not forward:
 			y -= 1
 		elif y == 0 and not forward:
@@ -129,8 +131,10 @@ class AI(Player.Player):
 		elif y < 0:
 			raise
 		
+		#next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
 		while True:
 			next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
+			#if not forward and next_letter != None:
 			if next_letter != None:
 				self.HookV(x, y, start_pos, forward, word, tile_placed, poss_list)
 			else:
@@ -140,6 +144,8 @@ class AI(Player.Player):
 						rack_letter = self.rack[rack_pos][0]
 						if rack_letter == "*":
 							for test_letter in self.alphabet:
+								#print ("V", word)
+								#print (self.gaddag.navigateToNode(word + rack_letter) != None, word + test_letter, forward)
 								if self.gaddag.navigateToNode(word + test_letter) != None:
 									self.in_game.MoveRackTileToBoard(rack_pos, (x, y), test_letter)
 									if self.HorizontalWordAtPos(x, y):
@@ -148,6 +154,8 @@ class AI(Player.Player):
 										poss_list.pop(-1)
 									self.in_game.MoveBoardTileToRack((x, y), rack_pos)
 						else:
+							#print ("V", word)
+							#print (self.gaddag.navigateToNode(word + rack_letter) != None, word + rack_letter, forward)
 							if self.gaddag.navigateToNode(word + rack_letter) != None:
 								self.in_game.MoveRackTileToBoard(rack_pos, (x, y))
 								if self.HorizontalWordAtPos(x, y):
@@ -157,11 +165,13 @@ class AI(Player.Player):
 								self.in_game.MoveBoardTileToRack((x, y), rack_pos)
 
 			if not forward and start_pos[1] < 14 and next_letter == None:
+				#print ("hi")
 				forward = True
 				y = start_pos[1] + 1
 				word += "@"
 			else:
 				break
+			#self.HookV(x, y, start_pos, forward, word, tile_placed, poss_list)
 			
 		
 	def HookH(self, x, y, start_pos = None, forward = False, word = "", tile_placed = False, poss_list = None):
@@ -170,10 +180,20 @@ class AI(Player.Player):
 		if start_pos == None:
 			start_pos = (x, y)
 			
-		letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
-		word += letter
+		try:
+			letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
+			word += letter
+		except:
+			#for n in self.in_game.the_board:
+				#print (n)
+				#print ("")
+			#print ("")
+			#print (x, y, word, letter)
+			raise
 			
+		#print ("H", word)
 		if tile_placed and self.gaddag.checkIsWord(word) and len(word) >= 1 and word[-1] != "@" and ((forward and x == 14) or (forward and self.in_game.GetLetterOfTileInHolderAtPos((x + 1, y)) == None) or ((not forward and x == 0)) or (not forward and x > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x - 1, y)) == None)):
+			#print ("Hsubmit", word)
 			score = self.in_game.CalculateWordScore()
 			self.best_words.append((tuple(poss_list), score))	
 			
@@ -193,8 +213,10 @@ class AI(Player.Player):
 		elif x < 0:
 			raise
 			
+		#next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
 		while True:			
 			next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
+			#if not forward and next_letter != None:
 			if next_letter != None:
 				self.HookH(x, y, start_pos, forward, word, tile_placed, poss_list)
 			else:
@@ -205,6 +227,8 @@ class AI(Player.Player):
 						if rack_letter == "*":
 							for test_letter in self.alphabet:
 								if self.gaddag.navigateToNode(word + test_letter) != None:
+									#print ("H", word)
+									#print (self.gaddag.navigateToNode(word + rack_letter) != None, word + test_letter, forward)
 									self.in_game.MoveRackTileToBoard(rack_pos, (x, y), test_letter)
 									if self.VerticalWordAtPos(x, y):
 										poss_list.append((rack_pos, (x, y), test_letter))
@@ -212,6 +236,8 @@ class AI(Player.Player):
 										poss_list.pop(-1)
 									self.in_game.MoveBoardTileToRack((x, y), rack_pos)
 						else:
+							#print ("H", word)
+							#print (self.gaddag.navigateToNode(word + rack_letter) != None, word + rack_letter, forward)
 							if self.gaddag.navigateToNode(word + rack_letter) != None:
 								self.in_game.MoveRackTileToBoard(rack_pos, (x, y))
 								if self.VerticalWordAtPos(x, y):
@@ -231,6 +257,7 @@ class AI(Player.Player):
 	
 	def PlaceLetters(self, pos_struct_tuple):
 		for pos_pair in pos_struct_tuple[0]:
+			#print (self.rack[pos_pair[0]], pos_pair[1])
 			if len(pos_pair) == 2:
 				self.in_game.MoveRackTileToBoard(pos_pair[0], pos_pair[1])
 			elif len(pos_pair) == 3:
@@ -244,9 +271,18 @@ class AI(Player.Player):
 			best_word = self.best_words[0]
 		else:
 			best_word = None
+		#print ("------------------------")
+		#print ("rack: ", self.rack)
 		if best_word != None:
 			self.PlaceLetters(best_word)
 			self.best_words.clear()
+			"""
+			for n in self.in_game.the_board:
+				for m in n:
+					print (m[0], end = " | ")
+				print ("\n")
+			print ("")
+			"""
 			self.in_game.SubmitWord()
 		else:
 			self.in_game.PassTurn()	
