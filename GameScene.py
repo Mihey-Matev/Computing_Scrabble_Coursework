@@ -72,6 +72,9 @@ class GameScene(Scene.Scene):
 		self.player_box_scorenum_2.SetText(self.the_game.GetNextPlayerScore())
 		
 		self.the_rack.PopulateRack(self.the_game.GetCurrentPlayerLetterTiles())
+		
+		if len(AI_names) > 0:
+			self.AfterEachTurn()
 
 	
 	# puts the tiles which have been moved this turn back onto the rack
@@ -328,6 +331,7 @@ class GameScene(Scene.Scene):
 	def SubmitWord(self):
 		for holder in self.tile_placement_locations:
 			self.the_board.GetHolderAtPos(holder[0], holder[1]).Deactivate()
+		"""
 		for y in range(15):		# this part generates a new lettertile in any position which should have a lettertile in it, but doesn't; this will come in useful once the AI can place tiles down onto the board (which wont be displayed, as the AI will only do it logically)
 			for x in range(15):
 				if self.the_game.GetTileAtPos(x, y) != None and str(self.the_board.GetHolderAtPos(x, y).GetTile()) != str(self.the_game.GetTileAtPos(x, y)[0]):
@@ -344,6 +348,7 @@ class GameScene(Scene.Scene):
 										outline_size = 4,
 										point_worth = self.the_game.GetTileAtPos(x, y)[1])
 										)	
+		"""
 		self.AfterEachTurn()
 			
 				
@@ -354,13 +359,30 @@ class GameScene(Scene.Scene):
 	
 	# things that need to happen after each turn consistently (such as swapping which player's rack is shown etc)
 	def AfterEachTurn(self):
-		print ("hi1")
+		#print ("hi1")
+		for y in range(15):		# this part generates a new lettertile in any position which should have a lettertile in it, but doesn't; this will come in useful once the AI can place tiles down onto the board (which wont be displayed, as the AI will only do it logically)
+			for x in range(15):
+				if self.the_game.GetTileAtPos(x, y) != None and str(self.the_board.GetHolderAtPos(x, y).GetTile()) != str(self.the_game.GetTileAtPos(x, y)[0]):
+					self.the_board.GetHolderAtPos(x, y).PlaceTile(GLetterTile.GLetterTile(
+										colour = (215, 215, 0),
+										width = self.tile_size[0], 
+										height = self.tile_size[1], 
+										outline_colour = (100, 100, 0), 
+										text = self.the_game.GetTileAtPos(x, y)[0],
+										text_size = round(0.49 * self.tile_size[0]), 
+										text_colour = (0, 0, 0), 
+										fade_value = 30,
+										is_active = False,
+										outline_size = 4,
+										point_worth = self.the_game.GetTileAtPos(x, y)[1])
+										)	
+					
 		self.winner = self.the_game.GetWinner()	# check if there is a winner
 		if self.winner != None:		# firstly we check if there was a winner; if there was, we announce the winner, and end the game
 			self.CongratulateWinner()
 			return True
 		else:
-			print ("hi2")
+			#print ("hi2")
 			#self.CancelMoves()
 			#self.tile_placement_locations.clear()
 			#self.the_game.ReturnMovedTilesToRack()
