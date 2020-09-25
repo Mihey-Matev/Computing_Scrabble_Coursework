@@ -31,8 +31,11 @@ class Node:
 				self.arcLetters[wordA[0]].addArc(wordA[1:])		# If a path exists, uses self.startNode.addArc(reverseWord)that;
 			except:				
 				self.arcLetters[wordA[0]] = Node(wordA) 	# otherwise, creates a new path.
+		#elif connectToNode == None:
 		else:
-			self.canTerminate = True			
+			self.canTerminate = True
+		#else:												# allows for non-linear connections to be made
+		#	self.arcLetters[connectToNode.getNodeLetter()] = connectToNode				
 
 			
 class GADDAG:	

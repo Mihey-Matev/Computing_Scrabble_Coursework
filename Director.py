@@ -45,6 +45,7 @@ class Director: # This class is basically the class which links everything toget
 				if game_option == 1:
 					number_of_players = 1
 					number_of_AIs = 1
+					#raise NotImplementedError("Section of game not implemented yet")
 				elif game_option == 2:
 					number_of_players = 2
 				elif game_option == 3:

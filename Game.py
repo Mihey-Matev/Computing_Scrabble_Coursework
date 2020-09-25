@@ -6,8 +6,11 @@ import Player
 import AI
 import GADDAG
 
+#with open(str(sys.path[0]) + "/dictionary", "r") as dict_file:
 with open("dictionary", "r") as dict_file:	
+#with open("dictionary", "r") as dict_file:
 	dictionary = dict_file.read().strip().upper().split("\n")
+#dict_file.close()
 gaddag = GADDAG.GADDAG(dictionary)
 
 class Game:

@@ -7,8 +7,6 @@ class AI(Player.Player):
 	def __init__(self, nickname, game, gaddag):
 		self.gaddag = gaddag
 		super(AI, self).__init__(nickname, game)
-		
-		
 		self.best_words = []
 		self.alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	
@@ -20,14 +18,14 @@ class AI(Player.Player):
 				if rack_tile != None:
 					if rack_tile[0] != "*":
 						self.in_game.MoveRackTileToBoard(rack_pos, (7, 7))
-						self.HookH(x = 7, y = 7, poss_list = [(rack_pos, (7, 7))], tile_placed = True)
-						self.HookV(x = 7, y = 7, poss_list = [(rack_pos, (7, 7))], tile_placed = True)
+						self.HookH(x = 7, y = 7, poss_list = [(rack_pos, (7, 7))], tiles_placed = 1)
+						self.HookV(x = 7, y = 7, poss_list = [(rack_pos, (7, 7))], tiles_placed = 1)
 						self.in_game.MoveBoardTileToRack((7, 7), rack_pos)
 					else:
 						for letter in self.alphabet:
 							self.in_game.MoveRackTileToBoard(rack_pos, (7, 7), letter)
-							self.HookH(x = 7, y = 7, poss_list = [(rack_pos, (7, 7), letter)], tile_placed = True)
-							self.HookV(x = 7, y = 7, poss_list = [(rack_pos, (7, 7), letter)], tile_placed = True)
+							self.HookH(x = 7, y = 7, poss_list = [(rack_pos, (7, 7), letter)], tiles_placed = 1)
+							self.HookV(x = 7, y = 7, poss_list = [(rack_pos, (7, 7), letter)], tiles_placed = 1)
 							self.in_game.MoveBoardTileToRack((7, 7), rack_pos)					
 		else:
 			for y in range(15):
@@ -99,40 +97,40 @@ class AI(Player.Player):
 			return self.gaddag.checkIsWord(current_word)
 		
 		
-	def HookV(self, x, y, start_pos = None, forward = False, word = "", tile_placed = False, poss_list = None):
+	def HookV(self, x, y, start_pos = None, forward = False, word = "", tiles_placed = 0, poss_list = None, h_tried = False):
 		if poss_list == None:
 			poss_list = []		
 		if start_pos == None:
-			start_pos = (x, y)
-			
-			
+			start_pos = (x, y)			
+		
 		letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
-		word += letter			
+		word += letter
 			
-		if tile_placed and self.gaddag.checkIsWord(word) and len(word) >= 1 and word[-1] != "@" and ((forward and y == 14) or (forward and y < 14 and self.in_game.GetLetterOfTileInHolderAtPos((x, y + 1)) == None) or (not forward and y == 0) or (not forward and y > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x, y - 1)) == None)):
+		if tiles_placed and self.gaddag.checkIsWord(word) and len(word) >= 1 and word[-1] != "@" and ((forward and y == 14) or (forward and y < 14 and self.in_game.GetLetterOfTileInHolderAtPos((x, y + 1)) == None) or (not forward and y == 0) or (not forward and y > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x, y - 1)) == None)):
 			score = self.in_game.CalculateWordScore()
 			self.best_words.append((tuple(poss_list), score))
 			
+		y_new = y
 		if y > 0 and not forward:
-			y -= 1
+			y_new -= 1
 		elif y == 0 and not forward:
 			if start_pos[1] < 14:
 				forward = True
-				y = start_pos[1] + 1
+				y_new = start_pos[1] + 1
 				word += "@"
 			else:
 				return
 		elif y < 14 and forward:
-			y += 1
+			y_new += 1
 		elif y >= 14 and forward:
 			return
 		elif y < 0:
 			raise
 		
 		while True:
-			next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
+			next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y_new))
 			if next_letter != None:
-				self.HookV(x, y, start_pos, forward, word, tile_placed, poss_list)
+				self.HookV(x, y_new, start_pos, forward, word, tiles_placed, poss_list, h_tried)
 			else:
 				for rack_pos in range(7):
 					rack_letter = self.rack[rack_pos]
@@ -141,30 +139,33 @@ class AI(Player.Player):
 						if rack_letter == "*":
 							for test_letter in self.alphabet:
 								if self.gaddag.navigateToNode(word + test_letter) != None:
-									self.in_game.MoveRackTileToBoard(rack_pos, (x, y), test_letter)
-									if self.HorizontalWordAtPos(x, y):
-										poss_list.append((rack_pos, (x, y), test_letter))
-										self.HookV(x, y, start_pos, forward, word, True, poss_list)
+									self.in_game.MoveRackTileToBoard(rack_pos, (x, y_new), test_letter)
+									if self.HorizontalWordAtPos(x, y_new):
+										poss_list.append((rack_pos, (x, y_new), test_letter))
+										self.HookV(x, y_new, start_pos, forward, word, tiles_placed + 1, poss_list, h_tried)
 										poss_list.pop(-1)
-									self.in_game.MoveBoardTileToRack((x, y), rack_pos)
+									self.in_game.MoveBoardTileToRack((x, y_new), rack_pos)
 						else:
 							if self.gaddag.navigateToNode(word + rack_letter) != None:
-								self.in_game.MoveRackTileToBoard(rack_pos, (x, y))
-								if self.HorizontalWordAtPos(x, y):
-									poss_list.append((rack_pos, (x, y)))
-									self.HookV(x, y, start_pos, forward, word, True, poss_list)
+								self.in_game.MoveRackTileToBoard(rack_pos, (x, y_new))
+								if self.HorizontalWordAtPos(x, y_new):
+									poss_list.append((rack_pos, (x, y_new)))
+									self.HookV(x, y_new, start_pos, forward, word, tiles_placed + 1, poss_list, h_tried)
 									poss_list.pop(-1)
-								self.in_game.MoveBoardTileToRack((x, y), rack_pos)
+								self.in_game.MoveBoardTileToRack((x, y_new), rack_pos)
+								
+						if not h_tried and tiles_placed == 1 and self.gaddag.checkIsWord(word):
+							self.HookH(x = x, y = y, poss_list = poss_list, v_tried = True)
 
 			if not forward and start_pos[1] < 14 and next_letter == None:
 				forward = True
-				y = start_pos[1] + 1
+				y_new = start_pos[1] + 1
 				word += "@"
 			else:
 				break
 			
 		
-	def HookH(self, x, y, start_pos = None, forward = False, word = "", tile_placed = False, poss_list = None):
+	def HookH(self, x, y, start_pos = None, forward = False, word = "", tiles_placed = 0, poss_list = None, v_tried = False):
 		if poss_list == None:
 			poss_list = []		
 		if start_pos == None:
@@ -173,30 +174,31 @@ class AI(Player.Player):
 		letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
 		word += letter
 			
-		if tile_placed and self.gaddag.checkIsWord(word) and len(word) >= 1 and word[-1] != "@" and ((forward and x == 14) or (forward and self.in_game.GetLetterOfTileInHolderAtPos((x + 1, y)) == None) or ((not forward and x == 0)) or (not forward and x > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x - 1, y)) == None)):
+		if tiles_placed and self.gaddag.checkIsWord(word) and len(word) >= 1 and word[-1] != "@" and ((forward and x == 14) or (forward and self.in_game.GetLetterOfTileInHolderAtPos((x + 1, y)) == None) or ((not forward and x == 0)) or (not forward and x > 0 and self.in_game.GetLetterOfTileInHolderAtPos((x - 1, y)) == None)):
 			score = self.in_game.CalculateWordScore()
 			self.best_words.append((tuple(poss_list), score))	
 			
+		x_new = x
 		if x > 0 and not forward:
-			x -= 1
+			x_new -= 1
 		elif x == 0 and not forward:
 			if start_pos[0] < 14:
 				forward = True
-				x = start_pos[0] + 1
+				x_new = start_pos[0] + 1
 				word += "@"
 			else:
 				return
 		elif x < 14 and forward:
-			x += 1
+			x_new += 1
 		elif x >= 14 and forward:
 			return
 		elif x < 0:
 			raise
 			
 		while True:			
-			next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x, y))
+			next_letter = self.in_game.GetLetterOfTileInHolderAtPos((x_new, y))
 			if next_letter != None:
-				self.HookH(x, y, start_pos, forward, word, tile_placed, poss_list)
+				self.HookH(x_new, y, start_pos, forward, word, tiles_placed, poss_list, v_tried)
 			else:
 				for rack_pos in range(7):
 					rack_letter = self.rack[rack_pos]
@@ -205,25 +207,28 @@ class AI(Player.Player):
 						if rack_letter == "*":
 							for test_letter in self.alphabet:
 								if self.gaddag.navigateToNode(word + test_letter) != None:
-									self.in_game.MoveRackTileToBoard(rack_pos, (x, y), test_letter)
-									if self.VerticalWordAtPos(x, y):
-										poss_list.append((rack_pos, (x, y), test_letter))
-										self.HookH(x, y, start_pos, forward, word, True, poss_list)
+									self.in_game.MoveRackTileToBoard(rack_pos, (x_new, y), test_letter)
+									if self.VerticalWordAtPos(x_new, y):
+										poss_list.append((rack_pos, (x_new, y), test_letter))
+										self.HookH(x_new, y, start_pos, forward, word, tiles_placed + 1, poss_list, v_tried)
 										poss_list.pop(-1)
-									self.in_game.MoveBoardTileToRack((x, y), rack_pos)
+									self.in_game.MoveBoardTileToRack((x_new, y), rack_pos)
 						else:
 							if self.gaddag.navigateToNode(word + rack_letter) != None:
-								self.in_game.MoveRackTileToBoard(rack_pos, (x, y))
-								if self.VerticalWordAtPos(x, y):
-									poss_list.append((rack_pos, (x, y)))
-									self.HookH(x, y, start_pos, forward, word, True, poss_list)
+								self.in_game.MoveRackTileToBoard(rack_pos, (x_new, y))
+								if self.VerticalWordAtPos(x_new, y):
+									poss_list.append((rack_pos, (x_new, y)))
+									self.HookH(x_new, y, start_pos, forward, word, tiles_placed + 1, poss_list, v_tried)
 									poss_list.pop(-1)
-								self.in_game.MoveBoardTileToRack((x, y), rack_pos)
+								self.in_game.MoveBoardTileToRack((x_new, y), rack_pos)
+						
+						if not v_tried and tiles_placed == 1 and self.gaddag.checkIsWord(word):
+							self.HookV(x = x, y = y, poss_list = poss_list, h_tried = True)
+							
 								
 			if (not forward) and start_pos[0] < 14 and next_letter == None:
-				#print ("hi")
 				forward = True
-				x = start_pos[0] + 1
+				x_new = start_pos[0] + 1
 				word += "@"
 			else:
 				break
